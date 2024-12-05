@@ -3,6 +3,8 @@ spring:
     name: hr
   profiles:
     active: smart
+  thymeleaf:
+    cache: false
 hr:
   employees:
     salary:

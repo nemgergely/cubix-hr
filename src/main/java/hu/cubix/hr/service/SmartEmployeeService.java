@@ -1,14 +1,14 @@
-package hu.cubix.hr.gergelynemeth.service;
+package hu.cubix.hr.service;
 
-import hu.cubix.hr.gergelynemeth.configuration.SalaryConfigurationProperties;
-import hu.cubix.hr.gergelynemeth.model.Employee;
+import hu.cubix.hr.configuration.SalaryConfigurationProperties;
+import hu.cubix.hr.model.Employee;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 
-import static hu.cubix.hr.gergelynemeth.configuration.SalaryConfigurationProperties.Limit;
-import static hu.cubix.hr.gergelynemeth.configuration.SalaryConfigurationProperties.Percentage;
+import static hu.cubix.hr.configuration.SalaryConfigurationProperties.Limit;
+import static hu.cubix.hr.configuration.SalaryConfigurationProperties.Percentage;
 
 @Service
 public class SmartEmployeeService implements IEmployeeService {

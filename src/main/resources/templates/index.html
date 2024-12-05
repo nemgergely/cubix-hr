@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>HR web application</title>
+    <style>
+        table, th, td {
+            border: 2px solid green;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Welcome to the HR application</h2>
+    <hr/>
+    <h4>List of employees</h4>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Job</th>
+            <th>Salary</th>
+            <th>Join date/time</th>
+        </tr>
+        <tr th:each="employee : ${employees}">
+            <td th:text="${employee.id}"></td>
+            <td th:text="${employee.job}"></td>
+            <td th:text="${employee.salary}"></td>
+            <td th:text="${employee.joinDateTime}"></td>
+        </tr>
+    </table>
+    <hr/>
+    <h4>Register a new employee</h4>
+    <form th:object="${newEmployee}" method="post" th:action="@{/employee}">
+        ID: <input th:field="*{id}" /><br/>
+        Job: <input th:field="*{job}" /><br/>
+        Salary: <input th:field="*{salary}" /><br/>
+        Join date/time: <input th:field="*{joinDateTime}" /><br/>
+        <input type="submit" value="Create Employee">
+    </form>
+</body>
+</html>
