@@ -2,11 +2,14 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>HR web application</title>
+    <title>HR web application main page</title>
     <style>
         table, th, td {
-            border: 2px solid green;
+            border: 3px solid green;
             padding: 5px;
+        }
+        table {
+            border-collapse: collapse;
         }
     </style>
 </head>
@@ -17,25 +20,44 @@
     <table>
         <tr>
             <th>ID</th>
+            <th>Name</th>
             <th>Job</th>
             <th>Salary</th>
             <th>Join date/time</th>
+            <th>Fire employee</th>
         </tr>
         <tr th:each="employee : ${employees}">
             <td th:text="${employee.id}"></td>
+            <td><a th:href="@{/update/{id}(id=${employee.id})}" th:text="${employee.name}"></a></td>
             <td th:text="${employee.job}"></td>
             <td th:text="${employee.salary}"></td>
             <td th:text="${employee.joinDateTime}"></td>
+            <td><a th:href="@{/delete/{id}(id=${employee.id})}">Delete</a></td>
         </tr>
     </table>
     <hr/>
-    <h4>Register a new employee</h4>
-    <form th:object="${newEmployee}" method="post" th:action="@{/employee}">
-        ID: <input th:field="*{id}" /><br/>
-        Job: <input th:field="*{job}" /><br/>
-        Salary: <input th:field="*{salary}" /><br/>
-        Join date/time: <input th:field="*{joinDateTime}" /><br/>
-        <input type="submit" value="Create Employee">
+    <h4>Create an employee</h4>
+    <form th:object="${newEmployee}" method="post" th:action="@{/create}">
+        <table>
+            <tr>
+                <td><label for="id">ID:</label></td><td><input th:field="*{id}" id="id"/></td>
+            </tr>
+            <tr>
+                <td><label for="name">Name:</label></td><td><input th:field="*{name}" id="name"/></td>
+            </tr>
+            <tr>
+                <td><label for="job">Job:</label></td><td><input th:field="*{job}" id="job"/></td>
+            </tr>
+            <tr>
+                <td><label for="salary">Salary:</label></td><td><input th:field="*{salary}" id="salary"/></td>
+            </tr>
+            <tr>
+                <td><label for="joinDateTime">Join date/time:</label></td><td><input th:field="*{joinDateTime}" id="joinDateTime"/></td>
+            </tr>
+            <tr>
+                <td colspan="2"><input type="submit" value="Create employee"></td>
+            </tr>
+        </table>
     </form>
 </body>
 </html>

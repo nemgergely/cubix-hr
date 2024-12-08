@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>HR web application employee update page</title>
+    <style>
+        table, th, td {
+            border: 3px solid purple;
+            padding: 5px;
+        }
+        table {
+            border-collapse: collapse;
+        }
+    </style>
+</head>
+<body>
+    <h4>Update an employee</h4>
+    <form th:object="${modifiedEmployee}" method="post" th:action="@{/update/{id}(id=${modifiedEmployee.id})}">
+        <table>
+            <tr>
+                <td><label for="name">Name:</label></td><td><input th:field="*{name}" id="name"/></td>
+            </tr>
+            <tr>
+                <td><label for="job">Job:</label></td><td><input th:field="*{job}" id="job"/></td>
+            </tr>
+            <tr>
+                <td><label for="salary">Salary:</label></td><td><input th:field="*{salary}" id="salary"/></td>
+            </tr>
+            <tr>
+                <td><label for="joinDateTime">Join date/time:</label></td><td><input th:field="*{joinDateTime}" id="joinDateTime"/></td>
+            </tr>
+            <tr>
+                <td colspan="2"><input type="submit" value="Update employee"></td>
+            </tr>
+        </table>
+    </form>
+</body>
+</html>

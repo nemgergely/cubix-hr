@@ -1,18 +1,21 @@
 package hu.cubix.hr.controller;
 
 import hu.cubix.hr.dto.EmployeeDto;
+import hu.cubix.hr.model.Employee;
+import hu.cubix.hr.service.IEmployeeService;
+import lombok.AllArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping("/api/employees")
 public class EmployeeRestController {
 
+    private final IEmployeeService employeeService;
     private final Map<Integer, EmployeeDto> employees = new HashMap<>();
 
     @GetMapping
@@ -60,5 +63,15 @@ public class EmployeeRestController {
     @DeleteMapping("/{id}")
     public void deleteEmployee(@PathVariable int id) {
         employees.remove(id);
+    }
+
+    @PostMapping("/payRaise")
+    public ResponseEntity<Integer> getPayRaisePercentage(@RequestBody EmployeeDto employee) {
+        if (!employees.containsKey(employee.getId())) {
+            return ResponseEntity.notFound().build();
+        }
+        Employee employeeModel = new Employee();
+        BeanUtils.copyProperties(employee, employeeModel);
+        return ResponseEntity.ok(employeeService.getPayRaisePercent(employeeModel));
     }
 }
