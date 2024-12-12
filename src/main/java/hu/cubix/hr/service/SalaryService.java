@@ -1,6 +1,6 @@
-package hu.cubix.hr.gergelynemeth.service;
+package hu.cubix.hr.service;
 
-import hu.cubix.hr.gergelynemeth.model.Employee;
+import hu.cubix.hr.model.Employee;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

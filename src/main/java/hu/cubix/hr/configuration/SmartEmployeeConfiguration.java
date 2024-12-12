@@ -1,7 +1,7 @@
-package hu.cubix.hr.gergelynemeth.configuration;
+package hu.cubix.hr.configuration;
 
-import hu.cubix.hr.gergelynemeth.service.IEmployeeService;
-import hu.cubix.hr.gergelynemeth.service.SmartEmployeeService;
+import hu.cubix.hr.service.IEmployeeService;
+import hu.cubix.hr.service.SmartEmployeeService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;

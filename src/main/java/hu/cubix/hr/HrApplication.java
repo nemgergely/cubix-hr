@@ -1,7 +1,7 @@
-package hu.cubix.hr.gergelynemeth;
+package hu.cubix.hr;
 
-import hu.cubix.hr.gergelynemeth.model.Employee;
-import hu.cubix.hr.gergelynemeth.service.SalaryService;
+import hu.cubix.hr.model.Employee;
+import hu.cubix.hr.service.SalaryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
