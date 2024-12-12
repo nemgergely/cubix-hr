@@ -7,9 +7,9 @@ hr:
   employees:
     salary:
       limit:
-        first-category: 120
-        second-category: 60
-        third-category: 30
+        first-category: 10.0
+        second-category: 5.0
+        third-category: 2.5
       percentage:
         first-category: 30
         second-category: 15
