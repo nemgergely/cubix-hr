@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 import static hu.cubix.hr.gergelynemeth.configuration.SalaryConfigurationProperties.Limit;
 import static hu.cubix.hr.gergelynemeth.configuration.SalaryConfigurationProperties.Percentage;
@@ -18,27 +19,22 @@ public class SmartEmployeeService implements IEmployeeService {
 
     @Override
     public int getPayRaisePercent(Employee employee) {
-        LocalDateTime timeSpentInCompany = LocalDateTime.now()
-            .minusYears(employee.getJoinDateTime().getYear())
-            .minusMonths(employee.getJoinDateTime().getMonthValue())
-            .minusDays(employee.getJoinDateTime().getDayOfMonth())
-            .minusHours(employee.getJoinDateTime().getHour())
-            .minusMinutes(employee.getJoinDateTime().getMinute())
-            .minusSeconds(employee.getJoinDateTime().getSecond());
 
-        int monthsSpentInCompany = timeSpentInCompany.getYear() * 12 + timeSpentInCompany.getMonthValue();
-        return calculatePercent(monthsSpentInCompany);
+        float yearsSpentInCompany = (float) (ChronoUnit.MONTHS.between(
+            employee.getJoinDateTime(), LocalDateTime.now()) / 12.0);
+
+        return calculatePercent(yearsSpentInCompany);
     }
 
-    private int calculatePercent(int monthsSpentInCompany) {
+    private int calculatePercent(float yearsSpentInCompany) {
         Limit limit = salaryConfigurationProperties.getLimit();
         Percentage percentage = salaryConfigurationProperties.getPercentage();
 
-        if (monthsSpentInCompany >= limit.getFirstCategory()) {
+        if (yearsSpentInCompany >= limit.getFirstCategory()) {
             return percentage.getFirstCategory();
-        } else if (monthsSpentInCompany >= limit.getSecondCategory()) {
+        } else if (yearsSpentInCompany >= limit.getSecondCategory()) {
             return percentage.getSecondCategory();
-        } else if (monthsSpentInCompany >= limit.getThirdCategory()) {
+        } else if (yearsSpentInCompany >= limit.getThirdCategory()) {
             return percentage.getThirdCategory();
         } else {
             return percentage.getFourthCategory();

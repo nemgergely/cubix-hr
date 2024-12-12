@@ -27,11 +27,11 @@ public class SalaryConfigurationProperties {
     }
 
     public static class Limit {
-        private int firstCategory;
-        private int secondCategory;
-        private int thirdCategory;
+        private float firstCategory;
+        private float secondCategory;
+        private float thirdCategory;
 
-        public int getFirstCategory() {
+        public float getFirstCategory() {
             return firstCategory;
         }
 
@@ -39,7 +39,7 @@ public class SalaryConfigurationProperties {
             this.firstCategory = firstCategory;
         }
 
-        public int getSecondCategory() {
+        public float getSecondCategory() {
             return secondCategory;
         }
 
@@ -47,7 +47,7 @@ public class SalaryConfigurationProperties {
             this.secondCategory = secondCategory;
         }
 
-        public int getThirdCategory() {
+        public float getThirdCategory() {
             return thirdCategory;
         }
 
