@@ -1,4 +1,4 @@
-package hu.cubix.hr.gergelynemeth.model;
+package hu.cubix.hr.model;
 
 import java.time.LocalDateTime;
 

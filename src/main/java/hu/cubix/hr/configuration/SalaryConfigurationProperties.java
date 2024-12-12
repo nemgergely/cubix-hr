@@ -1,4 +1,4 @@
-package hu.cubix.hr.gergelynemeth.configuration;
+package hu.cubix.hr.configuration;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
