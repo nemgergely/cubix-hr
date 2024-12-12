@@ -23,11 +23,11 @@ public class HrApplication implements CommandLineRunner {
 	public void run(String... args) {
 		Employee employee1 = new Employee(1, "Vasutas", 1000,
 			LocalDateTime.of(2010, 5, 10, 10, 0, 0));
-		Employee employee2 = new Employee(1, "Pályamunkás", 1000,
+		Employee employee2 = new Employee(2, "Pályamunkás", 1000,
 			LocalDateTime.of(2016, 5, 10, 10, 0, 0));
-		Employee employee3 = new Employee(1, "Vonatkerék pumpáló", 1000,
+		Employee employee3 = new Employee(3, "Vonatkerék pumpáló", 1000,
 			LocalDateTime.of(2021, 5, 10, 10, 0, 0));
-		Employee employee4 = new Employee(1, "Lakatlan szigeten tömeggyilkos", 1000,
+		Employee employee4 = new Employee(4, "Lakatlan szigeten tömeggyilkos", 1000,
 			LocalDateTime.of(2023, 5, 10, 10, 0, 0));
 
 		String format = "Base salary %d was increased by %d percent. New value is: %d%n";
