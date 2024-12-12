@@ -17,9 +17,9 @@ public class SalaryConfigurationProperties {
     @Setter
     @Getter
     public static class Limit {
-        private int firstCategory;
-        private int secondCategory;
-        private int thirdCategory;
+        private float firstCategory;
+        private float secondCategory;
+        private float thirdCategory;
 
     }
 
