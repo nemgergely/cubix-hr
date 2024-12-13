@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import hu.cubix.hr.dto.CompanyDto;
 import hu.cubix.hr.dto.EmployeeDto;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,25 +18,20 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/companies")
+@AllArgsConstructor
 @Slf4j
 public class CompanyRestController {
 
-    @Autowired
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
     private final Map<Integer, CompanyDto> companies = new HashMap<>();
 
     @GetMapping
     public ResponseEntity<List<CompanyDto>> findAllCompanies(@RequestParam Optional<Boolean> full) {
         List<CompanyDto> companyList = new ArrayList<>(companies.values());
-        if (full.isPresent() && full.get().equals(Boolean.TRUE)) {
-            return ResponseEntity.ok(companyList
-                .stream()
-                .map(company -> setFilterForResponse(false, company))
-                .toList());
-        }
+        boolean filterRequired = full.isEmpty() || full.get().equals(Boolean.FALSE);
         return ResponseEntity.ok(companyList
             .stream()
-            .map(company -> setFilterForResponse(true, company))
+            .map(company -> setFilterForResponse(filterRequired, company))
             .toList());
     }
 
@@ -45,10 +41,8 @@ public class CompanyRestController {
             return ResponseEntity.notFound().build();
         }
         CompanyDto company = companies.get(id);
-        if (full.isPresent() && full.get().equals(Boolean.TRUE)) {
-            return ResponseEntity.ok(setFilterForResponse(false, company));
-        }
-       return ResponseEntity.ok(setFilterForResponse(true, company));
+        boolean filterRequired = full.isEmpty() || full.get().equals(Boolean.FALSE);
+        return ResponseEntity.ok(setFilterForResponse(filterRequired, company));
     }
 
     @PostMapping
@@ -93,7 +87,7 @@ public class CompanyRestController {
         CompanyDto company = companies.get(id);
         company.getEmployees()
             .stream()
-            .filter(employeeDto -> employeeDto.getId().equals(employeeId))
+            .filter(employeeDto -> employeeDto.getId() == employeeId)
             .findFirst()
             .ifPresent(e -> company.getEmployees().remove(e));
         return ResponseEntity.ok(company);

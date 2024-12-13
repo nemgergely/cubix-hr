@@ -13,9 +13,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Employee {
 
-    private Integer id;
+    private int id;
     private String name;
     private String job;
-    private Integer salary;
+    private int salary;
     private LocalDateTime joinDateTime;
 }
