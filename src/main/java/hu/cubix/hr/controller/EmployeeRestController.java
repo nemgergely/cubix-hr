@@ -1,12 +1,15 @@
 package hu.cubix.hr.controller;
 
 import hu.cubix.hr.dto.EmployeeDto;
+import hu.cubix.hr.mapper.IEmployeeMapper;
 import hu.cubix.hr.model.Employee;
 import hu.cubix.hr.service.IEmployeeService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.BeanUtils;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
@@ -16,62 +19,68 @@ import java.util.*;
 public class EmployeeRestController {
 
     private final IEmployeeService employeeService;
-    private final Map<Integer, EmployeeDto> employees = new HashMap<>();
+    private final IEmployeeMapper employeeMapper;
 
     @GetMapping
-    public ResponseEntity<List<EmployeeDto>> findAllEmployees() {
-        return ResponseEntity.ok(new ArrayList<>(employees.values()));
+    public List<EmployeeDto> findAllEmployees() {
+        List<Employee> allEmployees = employeeService.getAllEmployees();
+        return employeeMapper.employeesToDtos(allEmployees);
     }
 
     @GetMapping("/riches")
-    public ResponseEntity<List<EmployeeDto>> findAllEmployeesWithHigherSalary(@RequestParam int salary) {
-        List<EmployeeDto> employeesWithHigherSalary = employees.values()
-            .stream()
-            .filter( employee -> employee.getSalary() > salary)
-            .toList();
-        return ResponseEntity.ok(employeesWithHigherSalary);
+    public List<EmployeeDto> findAllEmployeesWithHigherSalary(@RequestParam int salary) {
+        List<Employee> employeesWithHigherSalary = employeeService.getRichEmployees(salary);
+        return employeeMapper.employeesToDtos(employeesWithHigherSalary);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EmployeeDto> findEmployeeById(@PathVariable int id) {
-        EmployeeDto employee = employees.get(id);
+    public EmployeeDto findEmployeeById(@PathVariable int id) {
+        Employee employee = employeeService.getEmployeeById(id);
         if (employee == null) {
-            return ResponseEntity.notFound().build();
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        return ResponseEntity.ok(employee);
+        return employeeMapper.employeeToDto(employee);
     }
 
     @PostMapping
-    public ResponseEntity<EmployeeDto> createEmployee(@RequestBody EmployeeDto employee) {
-        if (employees.containsKey(employee.getId())) {
-            return ResponseEntity.badRequest().build();
+    public EmployeeDto createEmployee(@RequestBody @Valid EmployeeDto employeeDto, BindingResult bindingResult) {
+        throwBadRequestExceptionIfAnyErrors(bindingResult);
+        Employee employee = employeeMapper.dtoToEmployee(employeeDto);
+        Employee newEmployee = employeeService.createEmployee(employee);
+        if (newEmployee == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-        employees.put(employee.getId(), employee);
-        return ResponseEntity.ok(employee);
+        return employeeMapper.employeeToDto(newEmployee);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<EmployeeDto> updateEmployee(@PathVariable int id, @RequestBody EmployeeDto employee) {
-        employee.setId(id);
-        if (!employees.containsKey(employee.getId())) {
-            return ResponseEntity.notFound().build();
+    @PutMapping
+    public EmployeeDto updateEmployee(@RequestBody @Valid EmployeeDto employeeDto, BindingResult bindingResult) {
+        throwBadRequestExceptionIfAnyErrors(bindingResult);
+        employeeDto = new EmployeeDto(
+            employeeDto.id(), employeeDto.name(), employeeDto.job(),
+            employeeDto.salary(), employeeDto.joinDateTime());
+        Employee updatedEmployee = employeeService.updateEmployee(employeeMapper.dtoToEmployee(employeeDto));
+        if (updatedEmployee == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-        employees.put(id, employee);
-        return ResponseEntity.ok(employee);
+        return employeeMapper.employeeToDto(updatedEmployee);
     }
 
     @DeleteMapping("/{id}")
     public void deleteEmployee(@PathVariable int id) {
-        employees.remove(id);
+        employeeService.deleteEmployeeById(id);
     }
 
     @PostMapping("/payRaise")
-    public ResponseEntity<Integer> getPayRaisePercentage(@RequestBody EmployeeDto employee) {
-        if (!employees.containsKey(employee.getId())) {
-            return ResponseEntity.notFound().build();
+    public int getPayRaisePercentage(@RequestBody @Valid EmployeeDto employeeDto, BindingResult bindingResult) {
+        throwBadRequestExceptionIfAnyErrors(bindingResult);
+        Employee employee = employeeMapper.dtoToEmployee(employeeDto);
+        return employeeService.getPayRaisePercent(employee);
+    }
+
+    private void throwBadRequestExceptionIfAnyErrors(BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-        Employee employeeModel = new Employee();
-        BeanUtils.copyProperties(employee, employeeModel);
-        return ResponseEntity.ok(employeeService.getPayRaisePercent(employeeModel));
     }
 }

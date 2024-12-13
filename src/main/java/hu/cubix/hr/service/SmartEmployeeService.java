@@ -12,7 +12,7 @@ import static hu.cubix.hr.configuration.SalaryConfigurationProperties.Limit;
 import static hu.cubix.hr.configuration.SalaryConfigurationProperties.Percentage;
 
 @Service
-public class SmartEmployeeService implements IEmployeeService {
+public class SmartEmployeeService extends AbstractEmployeeService {
 
     @Autowired
     SalaryConfigurationProperties salaryConfigurationProperties;

@@ -26,14 +26,14 @@ public class EmployeeTLController {
 
     @GetMapping("/update/{id}")
     public String getUpdateEmployeeForm(@PathVariable int id, Model model) {
-        employees.stream().filter(e -> e.getId() == id).findFirst()
+        employees.stream().filter(e -> e.id() == id).findFirst()
             .ifPresent(e -> model.addAttribute("modifiedEmployee", e));
         return "update-employee";
     }
 
     @PostMapping("/create")
     public String createEmployee(EmployeeDto newEmployee) {
-        if (employees.stream().noneMatch(employee -> employee.getId().equals(newEmployee.getId()))) {
+        if (employees.stream().noneMatch(employee -> employee.id() == newEmployee.id())) {
             employees.add(newEmployee);
         }
         return MAIN_PAGE_REDIRECT;
@@ -41,14 +41,14 @@ public class EmployeeTLController {
 
     @PostMapping("/update/{id}")
     public String updateEmployee(@PathVariable int id, EmployeeDto modifiedEmployee) {
-        employees.removeIf(employee -> employee.getId().equals(id));
+        employees.removeIf(employee -> employee.id() == id);
         employees.add(modifiedEmployee);
         return MAIN_PAGE_REDIRECT;
     }
 
     @GetMapping("/delete/{id}")
     public String deleteEmployee(@PathVariable int id) {
-        employees.removeIf(employee -> employee.getId().equals(id));
+        employees.removeIf(employee -> employee.id() == id);
         return MAIN_PAGE_REDIRECT;
     }
 }

@@ -8,109 +8,112 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import hu.cubix.hr.dto.CompanyDto;
 import hu.cubix.hr.dto.EmployeeDto;
+import hu.cubix.hr.mapper.ICompanyMapper;
+import hu.cubix.hr.mapper.IEmployeeMapper;
+import hu.cubix.hr.model.Company;
+import hu.cubix.hr.model.Employee;
+import hu.cubix.hr.service.CompanyService;
+import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.*;
 
 @RestController
 @RequestMapping("/api/companies")
+@AllArgsConstructor
 @Slf4j
 public class CompanyRestController {
 
-    @Autowired
-    private ObjectMapper objectMapper;
-    private final Map<Integer, CompanyDto> companies = new HashMap<>();
+    private final ObjectMapper objectMapper;
+    private final CompanyService companyService;
+    private final ICompanyMapper companyMapper;
+    private final IEmployeeMapper employeeMapper;
 
     @GetMapping
-    public ResponseEntity<List<CompanyDto>> findAllCompanies(@RequestParam Optional<Boolean> full) {
-        List<CompanyDto> companyList = new ArrayList<>(companies.values());
-        if (full.isPresent() && full.get().equals(Boolean.TRUE)) {
-            return ResponseEntity.ok(companyList
-                .stream()
-                .map(company -> setFilterForResponse(false, company))
-                .toList());
-        }
-        return ResponseEntity.ok(companyList
+    public List<CompanyDto> findAllCompanies(@RequestParam Optional<Boolean> full) {
+        List<CompanyDto> companyDtos = companyMapper.companiesToDtos(companyService.getAllCompanies());
+        boolean filterRequired = full.isEmpty() || full.get().equals(Boolean.FALSE);
+        return companyDtos
             .stream()
-            .map(company -> setFilterForResponse(true, company))
-            .toList());
+            .map(company -> setFilterForResponse(filterRequired, company))
+            .toList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CompanyDto> findCompanyById(@PathVariable int id, @RequestParam Optional<Boolean> full) {
-        if (!companies.containsKey(id)) {
-            return ResponseEntity.notFound().build();
+    public CompanyDto findCompanyById(@PathVariable int id, @RequestParam Optional<Boolean> full) {
+        Company company = companyService.getCompanyById(id);
+        if (company == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        CompanyDto company = companies.get(id);
-        if (full.isPresent() && full.get().equals(Boolean.TRUE)) {
-            return ResponseEntity.ok(setFilterForResponse(false, company));
-        }
-       return ResponseEntity.ok(setFilterForResponse(true, company));
+        CompanyDto companyDto = companyMapper.companyToDto(company);
+        boolean filterRequired = full.isEmpty() || full.get().equals(Boolean.FALSE);
+        return setFilterForResponse(filterRequired, companyDto);
     }
 
     @PostMapping
-    public ResponseEntity<CompanyDto> createCompany(@RequestBody CompanyDto company) {
-        if (companies.containsKey(company.getId())) {
-            return ResponseEntity.badRequest().build();
-        }
-        companies.put(company.getId(), company);
-        return ResponseEntity.ok(company);
+    public CompanyDto createCompany(@RequestBody CompanyDto companyDto) {
+        Company newCompany = companyService.createCompany(companyMapper.dtoToCompany(companyDto));
+        throwStatusException(newCompany, HttpStatus.BAD_REQUEST);
+        return companyMapper.companyToDto(newCompany);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<CompanyDto> updateCompany(@PathVariable int id, @RequestBody CompanyDto company) {
-        company.setId(id);
-        if (!companies.containsKey(company.getId())) {
-            return ResponseEntity.notFound().build();
-        }
-        companies.put(id, company);
-        return ResponseEntity.ok(company);
+    @PutMapping
+    public CompanyDto updateCompany(@RequestBody CompanyDto companyDto) {
+        Company updatedCompany = companyService.updateCompany(companyMapper.dtoToCompany(companyDto));
+        throwStatusException(updatedCompany, HttpStatus.BAD_REQUEST);
+        return companyMapper.companyToDto(updatedCompany);
     }
 
     @DeleteMapping("/{id}")
     public void deleteCompany(@PathVariable int id) {
-        companies.remove(id);
+        companyService.deleteCompanyById(id);
     }
 
     @PostMapping("/{id}/addEmployee")
-    public ResponseEntity<CompanyDto> addEmployeeToCompany(@PathVariable int id, @RequestBody EmployeeDto employee) {
-        if (!companies.containsKey(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        CompanyDto company = companies.get(id);
-        company.getEmployees().add(employee);
-        return ResponseEntity.ok(company);
+    public CompanyDto addEmployeeToCompany(
+        @PathVariable int id, @RequestBody @Valid EmployeeDto employeeDto, BindingResult bindingResult) {
+        throwBadRequestExceptionIfAnyErrors(bindingResult);
+        Employee employee = employeeMapper.dtoToEmployee(employeeDto);
+        Company companyWithNewEmployee = companyService.addEmployeeToCompany(id, employee);
+        throwStatusException(companyWithNewEmployee, HttpStatus.BAD_REQUEST);
+        return companyMapper.companyToDto(companyWithNewEmployee);
     }
 
     @DeleteMapping("/{id}/deleteEmployee/{employeeId}")
-    public ResponseEntity<CompanyDto> deleteEmployeeFromCompany(@PathVariable int id, @PathVariable int employeeId) {
-        if (!companies.containsKey(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        CompanyDto company = companies.get(id);
-        company.getEmployees()
-            .stream()
-            .filter(employeeDto -> employeeDto.getId().equals(employeeId))
-            .findFirst()
-            .ifPresent(e -> company.getEmployees().remove(e));
-        return ResponseEntity.ok(company);
+    public CompanyDto deleteEmployeeFromCompany(@PathVariable int id, @PathVariable int employeeId) {
+        Company companyWithDeletedEmployee = companyService.deleteEmployeeFromCompany(id, employeeId);
+        throwStatusException(companyWithDeletedEmployee, HttpStatus.NOT_FOUND);
+        return companyMapper.companyToDto(companyWithDeletedEmployee);
     }
 
     @PutMapping("/{id}/updateEmployees")
-    public ResponseEntity<CompanyDto> updateEmployeesOfCompany(
-        @PathVariable int id, @RequestBody List<EmployeeDto> employees) {
-        if (!companies.containsKey(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        CompanyDto company = companies.get(id);
-        company.setEmployees(employees);
-        return ResponseEntity.ok(company);
+    public CompanyDto updateEmployeesOfCompany(
+        @PathVariable int id, @RequestBody List<@Valid EmployeeDto> employeeDtos, BindingResult bindingResult) {
+        throwBadRequestExceptionIfAnyErrors(bindingResult);
+        List<Employee> newEmployees = employeeMapper.dtosToEmployees(employeeDtos);
+        Company companyWithUpdatedEmployees = companyService.updateEmployeesOfCompany(id, newEmployees);
+        throwStatusException(companyWithUpdatedEmployees, HttpStatus.BAD_REQUEST);
+        return companyMapper.companyToDto(companyWithUpdatedEmployees);
     }
 
-    private CompanyDto setFilterForResponse(boolean filterRequired, CompanyDto company) {
+    private void throwStatusException(Company company, HttpStatus status) {
+        if (company == null) {
+            throw new ResponseStatusException(status);
+        }
+    }
+
+    private void throwBadRequestExceptionIfAnyErrors(BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    private CompanyDto setFilterForResponse(boolean filterRequired, CompanyDto companyDto) {
         try {
             ObjectWriter writer;
             FilterProvider filter;
@@ -127,7 +130,7 @@ public class CompanyRestController {
             }
             objectMapper.setFilterProvider(filter);
             writer = objectMapper.writer(filter);
-            String writeValueAsString = writer.writeValueAsString(company);
+            String writeValueAsString = writer.writeValueAsString(companyDto);
             return objectMapper.readValue(writeValueAsString, CompanyDto.class);
         } catch (JsonProcessingException e) {
             log.info(e.getMessage());

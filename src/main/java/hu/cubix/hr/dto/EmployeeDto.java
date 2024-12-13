@@ -1,19 +1,15 @@
 package hu.cubix.hr.dto;
 
-import lombok.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Past;
+import jakarta.validation.constraints.Positive;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
 
-@Builder
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class EmployeeDto implements Serializable {
+public record EmployeeDto(
+    int id, @NotEmpty String name, @NotEmpty String job, @Positive int salary, @Past LocalDateTime joinDateTime) {
 
-    private Integer id;
-    private String name;
-    private String job;
-    private Integer salary;
-    private LocalDateTime joinDateTime;
+    public EmployeeDto() {
+        this( 0, null, null, 1, null);
+    }
 }
