@@ -2,6 +2,7 @@ package hu.cubix.hr.service;
 
 import hu.cubix.hr.model.Employee;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface IEmployeeService {
@@ -19,4 +20,10 @@ public interface IEmployeeService {
     Employee updateEmployee(Employee employee);
 
     void deleteEmployeeById(int id);
+
+    List<Employee> findAllEmployeesByJob(String job);
+
+    List<Employee> findAllEmployeesWithNamePrefix(String namePrefix);
+
+    List<Employee> findAllEmployeesByJoinTimeFrame(LocalDateTime from, LocalDateTime to);
 }

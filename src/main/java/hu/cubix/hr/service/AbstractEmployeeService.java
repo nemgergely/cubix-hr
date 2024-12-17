@@ -1,58 +1,65 @@
 package hu.cubix.hr.service;
 
-import hu.cubix.hr.dto.EmployeeDto;
 import hu.cubix.hr.model.Employee;
+import hu.cubix.hr.repository.EmployeeRepository;
+import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
+@Setter(onMethod_ = {@Autowired})
+@Transactional
 public abstract class AbstractEmployeeService implements IEmployeeService {
 
-    private final Map<Integer, Employee> employees = new HashMap<>();
+    private EmployeeRepository employeeRepository;
 
     @Override
     public List<Employee> getAllEmployees() {
-        return new ArrayList<>(employees.values());
+        return employeeRepository.findAll();
     }
 
     @Override
     public List<Employee> getRichEmployees(int salary) {
-        return employees.values()
-            .stream()
-            .filter( employee -> employee.getSalary() > salary)
-            .toList();
+        return employeeRepository.findAllBySalaryGreaterThan(salary);
     }
 
     @Override
     public Employee createEmployee(Employee employee) {
-        if (getEmployeeById(employee.getId()) != null) {
-            return null;
-        }
-        return saveEmployee(employee);
+        return employeeRepository.save(employee);
     }
 
     @Override
     public Employee updateEmployee(Employee employee) {
-        if (getEmployeeById(employee.getId()) == null) {
+        if (!employeeRepository.existsById(employee.getId())) {
             return null;
         }
-        return saveEmployee(employee);
+        return employeeRepository.save(employee);
     }
 
     @Override
     public void deleteEmployeeById(int id) {
-        employees.remove(id);
+        employeeRepository.deleteById(id);
     }
 
     @Override
     public Employee getEmployeeById(int id) {
-        return employees.get(id);
+        return employeeRepository.findById(id).orElse(null);
     }
 
-    private Employee saveEmployee(Employee employee) {
-        employees.put(employee.getId(), employee);
-        return employee;
+    @Override
+    public List<Employee> findAllEmployeesByJob(String job) {
+        return employeeRepository.findAllByJob(job);
+    }
+
+    @Override
+    public List<Employee> findAllEmployeesWithNamePrefix(String namePrefix) {
+        return employeeRepository.findAllByNameStartsWithIgnoreCase(namePrefix);
+    }
+
+    @Override
+    public List<Employee> findAllEmployeesByJoinTimeFrame(LocalDateTime from, LocalDateTime to) {
+        return employeeRepository.findAllByJoinDateTimeBetween(from, to);
     }
 }

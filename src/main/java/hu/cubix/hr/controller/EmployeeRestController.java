@@ -11,6 +11,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @RestController
@@ -25,6 +26,25 @@ public class EmployeeRestController {
     public List<EmployeeDto> findAllEmployees() {
         List<Employee> allEmployees = employeeService.getAllEmployees();
         return employeeMapper.employeesToDtos(allEmployees);
+    }
+
+    @GetMapping("/job")
+    public List<EmployeeDto> findAllEmployeesWithGivenJob(@RequestParam String job) {
+        List<Employee> employeesWithGivenJob = employeeService.findAllEmployeesByJob(job);
+        return employeeMapper.employeesToDtos(employeesWithGivenJob);
+    }
+
+    @GetMapping("/name")
+    public List<EmployeeDto> findAllEmployeesWithGivenNamePrefix(@RequestParam String namePrefix) {
+        List<Employee> employeesWithGivenNamePrefix = employeeService.findAllEmployeesWithNamePrefix(namePrefix);
+        return employeeMapper.employeesToDtos(employeesWithGivenNamePrefix);
+    }
+
+    @GetMapping("/joinTimeFrame")
+    public List<EmployeeDto> findAllEmployeesWithGivenNamePrefix(
+        @RequestParam LocalDateTime from, @RequestParam LocalDateTime to) {
+        List<Employee> employeesWithGivenJoinTimeFrame = employeeService.findAllEmployeesByJoinTimeFrame(from, to);
+        return employeeMapper.employeesToDtos(employeesWithGivenJoinTimeFrame);
     }
 
     @GetMapping("/riches")

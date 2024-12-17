@@ -2,7 +2,11 @@ package hu.cubix.hr.service;
 
 import hu.cubix.hr.model.Company;
 import hu.cubix.hr.model.Employee;
+import hu.cubix.hr.repository.CompanyRepository;
+import hu.cubix.hr.repository.EmployeeRepository;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,28 +14,35 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@Transactional
+@AllArgsConstructor
 public class CompanyService {
 
-    private final Map<Integer, Company> companies = new HashMap<>();
+    private final CompanyRepository companyRepository;
+    private final EmployeeRepository employeeRepository;
 
     public List<Company> getAllCompanies() {
-        return new ArrayList<>(companies.values());
+        return companyRepository.findAll();
     }
 
     public Company getCompanyById(int id) {
-        return companies.get(id);
+        return companyRepository.findById(id).orElse(null);
     }
 
     public Company createCompany(Company company) {
-        return getCompanyById(company.getId()) == null ? saveCompany(company) : null;
+        company.getEmployees().forEach(employee -> employee.setCompany(company));
+        return companyRepository.save(company);
     }
 
     public Company updateCompany(Company company) {
-        return getCompanyById(company.getId()) == null ? null : saveCompany(company);
+        if (!companyRepository.existsById(company.getId())) {
+            return null;
+        }
+        return companyRepository.save(company);
     }
 
     public void deleteCompanyById(int id) {
-        companies.remove(id);
+        companyRepository.deleteById(id);
     }
 
     public Company addEmployeeToCompany(int id, Employee employee) {
@@ -40,7 +51,7 @@ public class CompanyService {
             return null;
         }
         company.getEmployees().add(employee);
-        return company;
+        return companyRepository.save(company);
     }
 
     public Company deleteEmployeeFromCompany(int id, int employeeId) {
@@ -53,7 +64,7 @@ public class CompanyService {
             .filter(employee -> employee.getId() == employeeId)
             .findFirst()
             .ifPresent(employee -> company.getEmployees().remove(employee));
-        return company;
+        return companyRepository.save(company);
     }
 
     public Company updateEmployeesOfCompany(int id, List<Employee> employees) {
@@ -62,11 +73,6 @@ public class CompanyService {
             return null;
         }
         company.setEmployees(employees);
-        return company;
-    }
-
-    private Company saveCompany(Company company) {
-        companies.put(company.getId(), company);
-        return company;
+        return companyRepository.save(company);
     }
 }
