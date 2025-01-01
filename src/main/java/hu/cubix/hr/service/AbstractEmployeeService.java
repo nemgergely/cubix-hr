@@ -22,7 +22,7 @@ public abstract class AbstractEmployeeService implements IEmployeeService {
 
     @Override
     public List<Employee> getRichEmployees(int salary) {
-        return employeeRepository.findAllBySalaryGreaterThan(salary);
+        return employeeRepository.findBySalaryGreaterThan(salary);
     }
 
     @Override
@@ -50,16 +50,16 @@ public abstract class AbstractEmployeeService implements IEmployeeService {
 
     @Override
     public List<Employee> findAllEmployeesByJob(String job) {
-        return employeeRepository.findAllByJob(job);
+        return employeeRepository.findByJob(job);
     }
 
     @Override
-    public List<Employee> findAllEmployeesWithNamePrefix(String namePrefix) {
-        return employeeRepository.findAllByNameStartsWithIgnoreCase(namePrefix);
+    public List<Employee> findAllEmployeesWithNamePrefix(String prefix) {
+        return employeeRepository.findByNameStartingWithIgnoreCase(prefix);
     }
 
     @Override
     public List<Employee> findAllEmployeesByJoinTimeFrame(LocalDateTime from, LocalDateTime to) {
-        return employeeRepository.findAllByJoinDateTimeBetween(from, to);
+        return employeeRepository.findByJoinDateTimeBetween(from, to);
     }
 }

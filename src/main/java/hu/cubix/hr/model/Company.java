@@ -25,13 +25,6 @@ public class Company {
     private String name;
     private String address;
 
-    @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "company")
     private List<Employee> employees;
-
-    public Company(int registrationNumber, String name, String address, List<Employee> employees) {
-        this.registrationNumber = registrationNumber;
-        this.name = name;
-        this.address = address;
-        this.employees = employees;
-    }
 }

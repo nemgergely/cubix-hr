@@ -23,7 +23,7 @@ public interface IEmployeeService {
 
     List<Employee> findAllEmployeesByJob(String job);
 
-    List<Employee> findAllEmployeesWithNamePrefix(String namePrefix);
+    List<Employee> findAllEmployeesWithNamePrefix(String prefix);
 
     List<Employee> findAllEmployeesByJoinTimeFrame(LocalDateTime from, LocalDateTime to);
 }

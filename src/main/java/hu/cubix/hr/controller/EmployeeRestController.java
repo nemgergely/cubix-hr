@@ -35,13 +35,13 @@ public class EmployeeRestController {
     }
 
     @GetMapping("/name")
-    public List<EmployeeDto> findAllEmployeesWithGivenNamePrefix(@RequestParam String namePrefix) {
-        List<Employee> employeesWithGivenNamePrefix = employeeService.findAllEmployeesWithNamePrefix(namePrefix);
+    public List<EmployeeDto> findAllEmployeesWithGivenNamePrefix(@RequestParam String prefix) {
+        List<Employee> employeesWithGivenNamePrefix = employeeService.findAllEmployeesWithNamePrefix(prefix);
         return employeeMapper.employeesToDtos(employeesWithGivenNamePrefix);
     }
 
     @GetMapping("/joinTimeFrame")
-    public List<EmployeeDto> findAllEmployeesWithGivenNamePrefix(
+    public List<EmployeeDto> findAllEmployeesByJoinTimeFrame(
         @RequestParam LocalDateTime from, @RequestParam LocalDateTime to) {
         List<Employee> employeesWithGivenJoinTimeFrame = employeeService.findAllEmployeesByJoinTimeFrame(from, to);
         return employeeMapper.employeesToDtos(employeesWithGivenJoinTimeFrame);

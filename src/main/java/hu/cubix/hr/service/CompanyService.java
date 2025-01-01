@@ -51,6 +51,8 @@ public class CompanyService {
             return null;
         }
         company.getEmployees().add(employee);
+        employee.setCompany(company);
+        employeeRepository.save(employee);
         return companyRepository.save(company);
     }
 
@@ -64,6 +66,7 @@ public class CompanyService {
             .filter(employee -> employee.getId() == employeeId)
             .findFirst()
             .ifPresent(employee -> company.getEmployees().remove(employee));
+        employeeRepository.deleteById(employeeId);
         return companyRepository.save(company);
     }
 
@@ -72,7 +75,9 @@ public class CompanyService {
         if (company == null) {
             return null;
         }
+        employees.forEach(employee -> employee.setCompany(company));
         company.setEmployees(employees);
+        employeeRepository.saveAll(employees);
         return companyRepository.save(company);
     }
 }
