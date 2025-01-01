@@ -1,9 +1,9 @@
 package hu.cubix.hr.controller;
 
 import hu.cubix.hr.dto.EmployeeDto;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,7 @@ class EmployeeControllerIntTest {
 
     @BeforeEach
     void setUp() {
-        initialEmployees.forEach(this::createValidEmployee);
+        initialEmployees.forEach(employee -> createEmployeePostRequest(employee, true));
     }
 
     @AfterEach
@@ -52,105 +52,133 @@ class EmployeeControllerIntTest {
                 .exchange());
     }
 
+    @Test
+    void testValidCreateEmployee() {
+        Integer id = 6;
+        if (isValidIdForRequest(id, false)) {
+            EmployeeDto newEmployee = new EmployeeDto(
+                id, "F Ferenc", "Forradalmar", 1000,
+                LocalDateTime.of(2012, 5, 22, 6, 0, 0));
+            List<EmployeeDto> employeesBeforeRequest = getAllEmployees();
+
+            createEmployeePostRequest(newEmployee, true);
+
+            List<EmployeeDto> employeesAfterRequest = getAllEmployees();
+            assertThat(employeesAfterRequest.subList(0, employeesBeforeRequest.size()))
+                .usingRecursiveFieldByFieldElementComparator()
+                .containsExactlyElementsOf(employeesBeforeRequest);
+            assertThat(employeesAfterRequest.get(employeesAfterRequest.size() - 1))
+                .usingRecursiveComparison()
+                .isEqualTo(newEmployee);
+        }
+    }
+
     @ParameterizedTest
     @CsvSource(value = {
-        "6, F Ferenc, Forradalmar, 1000, 2012-05-22T06:00:00",
         "7, G Gabor, Galvanizator, -20, 2017-05-22T10:00:00",
         "8, H Henrik, null, 4000, 2020-05-22T12:00:00",
         "9, Christopher Lloyd (Doki), Idoutazo, 6000, 2035-05-22T18:00:00",
         "10, null, Jegtoro, 10000, 2023-05-22T22:00:00"
     }, nullValues = "null")
-    void testCreateEmployee(int id, String name, String job, int salary, String joinDateTimeString) {
+    void testInvalidCreateEmployee(Integer id, String name, String job, int salary, String joinDateTimeString) {
         LocalDateTime joinDateTime = LocalDateTime.parse(joinDateTimeString);
-        List<EmployeeDto> originalEmployees = getAllEmployees();
-        boolean isValidId = originalEmployees
-            .stream()
-            .noneMatch(employeeDto -> employeeDto.id() == id);
-        boolean isValidRequest = isValidId && !StringUtils.isBlank(name) && !StringUtils.isBlank(job)
-            && salary > 0 && !joinDateTime.isAfter(LocalDateTime.now());
-        EmployeeDto newEmployee = null;
+        if (isValidIdForRequest(id, false)) {
+            List<EmployeeDto> employeesBeforeRequest = getAllEmployees();
+            EmployeeDto newEmployee = new EmployeeDto(id, name, job, salary, joinDateTime);
 
-        if (isValidRequest) {
-            newEmployee = new EmployeeDto(id, name, job, salary, joinDateTime);
-            createValidEmployee(newEmployee);
-        } else {
-            webTestClient.post().uri(API_EMPLOYEES).exchange().expectStatus().isBadRequest();
-        }
+            createEmployeePostRequest(newEmployee, false);
 
-        List<EmployeeDto> employeesAfterRequest = getAllEmployees();
-        if (isValidRequest) {
-            assertThat(employeesAfterRequest.subList(0, originalEmployees.size()))
-                .usingRecursiveFieldByFieldElementComparator()
-                .containsExactlyElementsOf(originalEmployees);
-            assertThat(employeesAfterRequest.get(employeesAfterRequest.size() - 1))
-                .usingRecursiveComparison()
-                .isEqualTo(newEmployee);
-        } else {
+            List<EmployeeDto> employeesAfterRequest = getAllEmployees();
             assertThat(employeesAfterRequest)
                 .usingRecursiveFieldByFieldElementComparator()
-                .containsExactlyElementsOf(originalEmployees);
+                .containsExactlyElementsOf(employeesBeforeRequest);
+        }
+    }
+
+    @Test
+    void testValidUpdateEmployee() {
+        Integer id = 1;
+        if (isValidIdForRequest(id, true)) {
+            EmployeeDto employeeForUpdate = new EmployeeDto(
+                id, "A Aladar Uj", "Alabardos Uj", 1000,
+                LocalDateTime.of(2012, 5, 22, 6, 0, 0));
+            List<EmployeeDto> employeesBeforeRequest = getAllEmployees();
+
+            updateEmployeePutRequest(employeeForUpdate, true);
+
+            List<EmployeeDto> employeesAfterRequest = getAllEmployees();
+            EmployeeDto originalDto = employeesBeforeRequest
+                .stream().filter(e -> e.id().equals(id)).findFirst().get();
+            EmployeeDto updatedDto = employeesAfterRequest
+                .stream().filter(e -> e.id().equals(id)).findFirst().get();
+            assertEquals(originalDto.id(), updatedDto.id());
+            assertThat(employeeForUpdate)
+                .usingRecursiveComparison()
+                .isEqualTo(updatedDto);
+            assertEquals(employeesBeforeRequest.size(), employeesAfterRequest.size());
         }
     }
 
     @ParameterizedTest
     @CsvSource(value = {
-        "1, A Aladar Uj, Alabardos Uj, 1000, 2012-05-22T06:00:00",
         "2, B Bela Uj, Barista Uj, 0, 2017-05-22T10:00:00",
         "3, C Cecil Uj, null, 4000, 2020-05-22T12:00:00",
         "4, Christopher Lloyd Uj, Doki Uj, 6000, 2035-05-22T18:00:00",
         "5, null, Eliminator Uj, 10000, 2023-05-22T22:00:00"
     }, nullValues = "null")
-    void testUpdateEmployee(int id, String name, String job, int salary, String joinDateTimeString) {
+    void testInvalidUpdateEmployee(int id, String name, String job, int salary, String joinDateTimeString) {
         LocalDateTime joinDateTime = LocalDateTime.parse(joinDateTimeString);
-        List<EmployeeDto> originalEmployees = getAllEmployees();
-        boolean isValidId = originalEmployees
-            .stream()
-            .anyMatch(employeeDto -> employeeDto.id() == id);
-        boolean isValidRequest = isValidId && !StringUtils.isBlank(name) && !StringUtils.isBlank(job)
-            && salary > 0 && !joinDateTime.isAfter(LocalDateTime.now());
-        EmployeeDto employeeForUpdate = null;
+        if (isValidIdForRequest(id, true)) {
+            List<EmployeeDto> employeesBeforeRequest = getAllEmployees();
+            EmployeeDto employeeForUpdate = new EmployeeDto(id, name, job, salary, joinDateTime);
 
-        if (isValidRequest) {
-            employeeForUpdate = new EmployeeDto(id, name, job, salary, joinDateTime);
-            updateWithValidEmployee(employeeForUpdate);
-        } else {
-            webTestClient.post().uri(API_EMPLOYEES).exchange().expectStatus().isBadRequest();
-        }
+            updateEmployeePutRequest(employeeForUpdate, false);
 
-        List<EmployeeDto> employeesAfterRequest = getAllEmployees();
-        if (isValidRequest) {
-            EmployeeDto originalDto = originalEmployees
-                .stream().filter(e -> e.id() == id).findFirst().get();
-            EmployeeDto updatedDto = employeesAfterRequest
-                .stream().filter(e -> e.id() == id).findFirst().get();
-            assertEquals(originalDto.id(), updatedDto.id());
-            assertThat(employeeForUpdate)
-                .usingRecursiveComparison()
-                .isEqualTo(updatedDto);
-            assertEquals(originalEmployees.size(), employeesAfterRequest.size());
-        } else {
+            List<EmployeeDto> employeesAfterRequest = getAllEmployees();
             assertThat(employeesAfterRequest)
                 .usingRecursiveFieldByFieldElementComparator()
-                .containsExactlyElementsOf(originalEmployees);
+                .containsExactlyElementsOf(employeesBeforeRequest);
         }
     }
 
-    private void createValidEmployee(EmployeeDto newEmployee) {
-        webTestClient
-            .post()
-            .uri(API_EMPLOYEES)
-            .bodyValue(newEmployee)
-            .exchange()
-            .expectStatus().isOk();
+    private void createEmployeePostRequest(EmployeeDto newEmployee, boolean isValidRequest) {
+        if (isValidRequest) {
+            webTestClient
+                .post()
+                .uri(API_EMPLOYEES)
+                .bodyValue(newEmployee)
+                .exchange()
+                .expectStatus()
+                .isOk();
+        } else {
+            webTestClient
+                .post()
+                .uri(API_EMPLOYEES)
+                .bodyValue(newEmployee)
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
+        }
     }
 
-    private void updateWithValidEmployee(EmployeeDto employeeForUpdate) {
-        webTestClient
-            .put()
-            .uri(API_EMPLOYEES)
-            .bodyValue(employeeForUpdate)
-            .exchange()
-            .expectStatus().isOk();
+    private void updateEmployeePutRequest(EmployeeDto employeeForUpdate, boolean isValidRequest) {
+        if (isValidRequest) {
+            webTestClient
+                .put()
+                .uri(API_EMPLOYEES)
+                .bodyValue(employeeForUpdate)
+                .exchange()
+                .expectStatus()
+                .isOk();
+        } else {
+            webTestClient
+                .put()
+                .uri(API_EMPLOYEES)
+                .bodyValue(employeeForUpdate)
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
+        }
     }
 
     private List<EmployeeDto> getAllEmployees() {
@@ -165,5 +193,16 @@ class EmployeeControllerIntTest {
 
         allEmployees.sort(Comparator.comparing(EmployeeDto::id));
         return allEmployees;
+    }
+
+    private boolean isValidIdForRequest(Integer id, boolean isUpdateRequest) {
+        List<EmployeeDto> employees = getAllEmployees();
+        return isUpdateRequest ?
+            employees
+                .stream()
+                .anyMatch(employeeDto -> employeeDto.id().equals(id)) :
+            employees
+                .stream()
+                .noneMatch(employeeDto -> employeeDto.id().equals(id));
     }
 }
