@@ -6,5 +6,5 @@ import java.util.List;
 
 @JsonFilter("employeeFilter")
 public record CompanyDto(
-    int id, int registrationNumber, String name, String address, List<EmployeeDto> employees) {
+    Integer id, int registrationNumber, String name, String address, List<EmployeeDto> employees) {
 }
