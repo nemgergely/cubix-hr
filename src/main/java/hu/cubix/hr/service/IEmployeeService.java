@@ -26,4 +26,6 @@ public interface IEmployeeService {
     List<Employee> findAllEmployeesWithNamePrefix(String prefix);
 
     List<Employee> findAllEmployeesByJoinTimeFrame(LocalDateTime from, LocalDateTime to);
+
+    List<Employee> findAverageSalariesOfGivenCompanyIdGroupedByJobOrderByAverageSalaries(Integer companyId);
 }

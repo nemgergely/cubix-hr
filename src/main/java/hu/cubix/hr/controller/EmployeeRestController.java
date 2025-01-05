@@ -28,6 +28,13 @@ public class EmployeeRestController {
         return employeeMapper.employeesToDtos(allEmployees);
     }
 
+    @GetMapping("/company")
+    public List<EmployeeDto> findAverageSalariesOfCompany(@RequestParam Integer companyId) {
+        List<Employee> employees =
+            employeeService.findAverageSalariesOfGivenCompanyIdGroupedByJobOrderByAverageSalaries(companyId);
+        return employeeMapper.employeesToDtos(employees);
+    }
+
     @GetMapping("/job")
     public List<EmployeeDto> findAllEmployeesWithGivenJob(@RequestParam String job) {
         List<Employee> employeesWithGivenJob = employeeService.findAllEmployeesByJob(job);

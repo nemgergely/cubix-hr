@@ -20,21 +20,25 @@ public class Employee {
     private Integer id;
 
     private String name;
-    private String job;
+
     private Integer salary;
 
     @Column(name = "join_date_time")
     private LocalDateTime joinDateTime;
 
     @ManyToOne
-    @JoinColumn(name = "company_id", referencedColumnName = "id")
-    private Company company;
+    @JoinColumn(name = "position_id", referencedColumnName = "id")
+    private Position position;
 
-    public Employee(String name, String job, Integer salary, LocalDateTime joinDateTime, Company company) {
+    public Employee(String name, Integer salary, LocalDateTime joinDateTime, Position position) {
         this.name = name;
-        this.job = job;
         this.salary = salary;
         this.joinDateTime = joinDateTime;
-        this.company = company;
+        this.position = position;
+    }
+
+    public Employee(Double averageSalary, Position position) {
+        this.salary = averageSalary.intValue();
+        this.position = position;
     }
 }

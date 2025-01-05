@@ -1,10 +1,8 @@
 package hu.cubix.hr.model;
 
+import hu.cubix.hr.enums.CompanyForm;
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
@@ -25,6 +23,16 @@ public class Company {
     private String name;
     private String address;
 
-    @OneToMany(mappedBy = "company")
-    private List<Employee> employees;
+    @Enumerated(EnumType.STRING)
+    private CompanyForm companyForm;
+
+    @OneToMany(mappedBy = "position", fetch = FetchType.LAZY)
+    private List<Position> positions;
+
+    public Company(int registrationNumber, String name, String address, CompanyForm companyForm) {
+        this.registrationNumber = registrationNumber;
+        this.name = name;
+        this.address = address;
+        this.companyForm = companyForm;
+    }
 }

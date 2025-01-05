@@ -44,6 +44,18 @@ public class CompanyRestController {
             .toList();
     }
 
+    @GetMapping("/salary")
+    public List<CompanyDto> findCompaniesByHavingEmployeeWithSalaryAboveGiven(@RequestParam Integer salaryLimit) {
+        List<Company> companies = companyService.findCompaniesByHavingEmployeeWithSalaryAboveGiven(salaryLimit);
+        return companyMapper.companiesToDtos(companies);
+    }
+
+    @GetMapping("/employee")
+    public List<CompanyDto> findCompaniesWithMoreEmployeesThanGiven(@RequestParam Integer employeeLimit) {
+        List<Company> companies = companyService.findCompaniesWithMoreEmployeesThanGiven(employeeLimit);
+        return companyMapper.companiesToDtos(companies);
+    }
+
     @GetMapping("/{id}")
     public CompanyDto findCompanyById(@PathVariable int id, @RequestParam Optional<Boolean> full) {
         Company company = companyService.getCompanyById(id);

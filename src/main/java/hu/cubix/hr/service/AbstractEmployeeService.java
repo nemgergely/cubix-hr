@@ -62,4 +62,9 @@ public abstract class AbstractEmployeeService implements IEmployeeService {
     public List<Employee> findAllEmployeesByJoinTimeFrame(LocalDateTime from, LocalDateTime to) {
         return employeeRepository.findByJoinDateTimeBetween(from, to);
     }
+
+    @Override
+    public List<Employee> findAverageSalariesOfGivenCompanyIdGroupedByJobOrderByAverageSalaries(Integer companyId) {
+        return employeeRepository.findAverageSalariesOfGivenCompanyIdGroupedByJobOrderByAverageSalaries(companyId);
+    }
 }

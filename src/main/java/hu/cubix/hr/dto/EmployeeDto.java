@@ -7,9 +7,9 @@ import jakarta.validation.constraints.Positive;
 import java.time.LocalDateTime;
 
 public record EmployeeDto(
-    Integer id, @NotEmpty String name, @NotEmpty String job, @Positive int salary, @Past LocalDateTime joinDateTime) {
+    Integer id, @NotEmpty String name, @Positive int salary, @Past LocalDateTime joinDateTime) {
 
     public EmployeeDto() {
-        this( 0, null, null, 1, null);
+        this( 0, null, 1, null);
     }
 }

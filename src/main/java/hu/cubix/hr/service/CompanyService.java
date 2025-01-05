@@ -8,10 +8,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @Transactional
@@ -79,5 +76,13 @@ public class CompanyService {
         company.setEmployees(employees);
         employeeRepository.saveAll(employees);
         return companyRepository.save(company);
+    }
+
+    public List<Company> findCompaniesByHavingEmployeeWithSalaryAboveGiven(Integer salaryLimit) {
+        return companyRepository.findAllByHavingEmployeeWithSalaryAboveGiven(salaryLimit);
+    }
+
+    public List<Company> findCompaniesWithMoreEmployeesThanGiven(Integer employeeLimit) {
+        return companyRepository.findAllWithMoreEmployeesThanGiven(employeeLimit);
     }
 }
