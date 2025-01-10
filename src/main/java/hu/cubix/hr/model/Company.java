@@ -1,9 +1,9 @@
 package hu.cubix.hr.model;
 
-import hu.cubix.hr.enums.CompanyForm;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -23,16 +23,28 @@ public class Company {
     private String name;
     private String address;
 
-    @Enumerated(EnumType.STRING)
-    private CompanyForm companyForm;
+    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    private List<Employee> employees;
 
-    @OneToMany(mappedBy = "position", fetch = FetchType.LAZY)
-    private List<Position> positions;
+    @OneToMany(mappedBy = "company", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
+    private List<PositionDetailsByCompany> positionDetailsByCompanyList;
 
-    public Company(int registrationNumber, String name, String address, CompanyForm companyForm) {
+    @ManyToOne
+    @JoinColumn(name = "company_type_id", referencedColumnName = "id")
+    private CompanyType companyType;
+
+    public void addEmployee(Employee employee) {
+        employee.setCompany(this);
+        if(this.employees == null) {
+            this.employees = new ArrayList<>();
+        }
+        this.getEmployees().add(employee);
+    }
+
+    public Company(Integer id, int registrationNumber, String name, String address) {
+        this.id = id;
         this.registrationNumber = registrationNumber;
         this.name = name;
         this.address = address;
-        this.companyForm = companyForm;
     }
 }

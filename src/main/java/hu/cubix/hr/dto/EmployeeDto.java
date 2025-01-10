@@ -10,6 +10,6 @@ public record EmployeeDto(
     Integer id, @NotEmpty String name, @Positive int salary, @Past LocalDateTime joinDateTime) {
 
     public EmployeeDto() {
-        this( 0, null, 1, null);
+        this(0, null, 1, null);
     }
 }

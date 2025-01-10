@@ -1,10 +1,7 @@
 package hu.cubix.hr.model;
 
 import jakarta.persistence.*;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -27,18 +24,17 @@ public class Employee {
     private LocalDateTime joinDateTime;
 
     @ManyToOne
+    @JoinColumn(name = "company_id", referencedColumnName = "id")
+    private Company company;
+
+    @ManyToOne
     @JoinColumn(name = "position_id", referencedColumnName = "id")
     private Position position;
 
-    public Employee(String name, Integer salary, LocalDateTime joinDateTime, Position position) {
+    public Employee(Integer id, String name, Integer salary, LocalDateTime joinDateTime) {
+        this.id = id;
         this.name = name;
         this.salary = salary;
         this.joinDateTime = joinDateTime;
-        this.position = position;
-    }
-
-    public Employee(Double averageSalary, Position position) {
-        this.salary = averageSalary.intValue();
-        this.position = position;
     }
 }

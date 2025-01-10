@@ -1,8 +1,6 @@
 package hu.cubix.hr;
 
-import hu.cubix.hr.model.Company;
 import hu.cubix.hr.model.Employee;
-import hu.cubix.hr.model.Position;
 import hu.cubix.hr.service.InitDbService;
 import hu.cubix.hr.service.SalaryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,14 +25,14 @@ public class HrApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) {
-		Employee employee1 = new Employee("Vasutas János", 1000,
-			LocalDateTime.of(2010, 5, 10, 10, 0, 0), new Position());
-		Employee employee2 = new Employee("Pályamunkás Pál", 1000,
-			LocalDateTime.of(2016, 5, 10, 10, 0, 0), new Position());
-		Employee employee3 = new Employee("Vonatkerék Vince", 1000,
-			LocalDateTime.of(2021, 5, 10, 10, 0, 0), new Position());
-		Employee employee4 = new Employee("Lakatlan László", 1000,
-			LocalDateTime.of(2023, 5, 10, 10, 0, 0), new Position());
+		Employee employee1 = new Employee(1, "Vasutas János", 1000,
+			LocalDateTime.of(2010, 5, 10, 10, 0, 0));
+		Employee employee2 = new Employee(2, "Pályamunkás Pál", 1000,
+			LocalDateTime.of(2016, 5, 10, 10, 0, 0));
+		Employee employee3 = new Employee(3, "Vonatkerék Vince", 1000,
+			LocalDateTime.of(2021, 5, 10, 10, 0, 0));
+		Employee employee4 = new Employee(4, "Lakatlan László", 1000,
+			LocalDateTime.of(2023, 5, 10, 10, 0, 0));
 
 		String format = "Base salary %d was increased by %d percent. New value is: %d%n";
 

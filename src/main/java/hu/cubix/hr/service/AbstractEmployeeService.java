@@ -1,9 +1,12 @@
 package hu.cubix.hr.service;
 
+import hu.cubix.hr.model.AverageSalaryByPosition;
 import hu.cubix.hr.model.Employee;
 import hu.cubix.hr.repository.EmployeeRepository;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -21,8 +24,8 @@ public abstract class AbstractEmployeeService implements IEmployeeService {
     }
 
     @Override
-    public List<Employee> getRichEmployees(int salary) {
-        return employeeRepository.findBySalaryGreaterThan(salary);
+    public Page<Employee> getRichEmployees(int salary, Pageable pageable) {
+        return employeeRepository.findBySalaryGreaterThan(salary, pageable);
     }
 
     @Override
@@ -50,7 +53,7 @@ public abstract class AbstractEmployeeService implements IEmployeeService {
 
     @Override
     public List<Employee> findAllEmployeesByJob(String job) {
-        return employeeRepository.findByJob(job);
+        return employeeRepository.findByPositionJobTitle(job);
     }
 
     @Override
@@ -61,10 +64,5 @@ public abstract class AbstractEmployeeService implements IEmployeeService {
     @Override
     public List<Employee> findAllEmployeesByJoinTimeFrame(LocalDateTime from, LocalDateTime to) {
         return employeeRepository.findByJoinDateTimeBetween(from, to);
-    }
-
-    @Override
-    public List<Employee> findAverageSalariesOfGivenCompanyIdGroupedByJobOrderByAverageSalaries(Integer companyId) {
-        return employeeRepository.findAverageSalariesOfGivenCompanyIdGroupedByJobOrderByAverageSalaries(companyId);
     }
 }

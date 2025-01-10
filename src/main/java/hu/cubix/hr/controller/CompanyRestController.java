@@ -10,9 +10,11 @@ import hu.cubix.hr.dto.CompanyDto;
 import hu.cubix.hr.dto.EmployeeDto;
 import hu.cubix.hr.mapper.ICompanyMapper;
 import hu.cubix.hr.mapper.IEmployeeMapper;
+import hu.cubix.hr.model.AverageSalaryByPosition;
 import hu.cubix.hr.model.Company;
 import hu.cubix.hr.model.Employee;
 import hu.cubix.hr.service.CompanyService;
+import hu.cubix.hr.service.SalaryService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,27 +35,27 @@ public class CompanyRestController {
     private final CompanyService companyService;
     private final ICompanyMapper companyMapper;
     private final IEmployeeMapper employeeMapper;
+    private final SalaryService salaryService;
 
     @GetMapping
     public List<CompanyDto> findAllCompanies(@RequestParam Optional<Boolean> full) {
-        List<CompanyDto> companyDtos = companyMapper.companiesToDtos(companyService.getAllCompanies());
-        boolean filterRequired = full.isEmpty() || full.get().equals(Boolean.FALSE);
-        return companyDtos
-            .stream()
-            .map(company -> setFilterForResponse(filterRequired, company))
-            .toList();
+        List<Company> companies = companyService.getAllCompanies();
+        return mapCompaniesWithOptionalFilter(companies, full);
     }
 
     @GetMapping("/salary")
-    public List<CompanyDto> findCompaniesByHavingEmployeeWithSalaryAboveGiven(@RequestParam Integer salaryLimit) {
-        List<Company> companies = companyService.findCompaniesByHavingEmployeeWithSalaryAboveGiven(salaryLimit);
-        return companyMapper.companiesToDtos(companies);
+    public List<CompanyDto> findCompaniesByHavingEmployeeWithSalaryAboveGiven(@RequestParam Integer minSalary,
+                                                                              @RequestParam Optional<Boolean> full) {
+        List<Company> companies = companyService.findCompaniesByHavingEmployeeWithSalaryAboveGiven(minSalary);
+        return mapCompaniesWithOptionalFilter(companies, full);
     }
 
     @GetMapping("/employee")
-    public List<CompanyDto> findCompaniesWithMoreEmployeesThanGiven(@RequestParam Integer employeeLimit) {
+    public List<CompanyDto> findCompaniesWithMoreEmployeesThanGiven(@RequestParam Integer employeeLimit,
+                                                                    @RequestParam Optional<Boolean> full) {
         List<Company> companies = companyService.findCompaniesWithMoreEmployeesThanGiven(employeeLimit);
-        return companyMapper.companiesToDtos(companies);
+        List<CompanyDto> companyDtos = mapCompaniesWithOptionalFilter(companies, full);
+        return companyDtos;
     }
 
     @GetMapping("/{id}")
@@ -65,6 +67,11 @@ public class CompanyRestController {
         CompanyDto companyDto = companyMapper.companyToDto(company);
         boolean filterRequired = full.isEmpty() || full.get().equals(Boolean.FALSE);
         return setFilterForResponse(filterRequired, companyDto);
+    }
+
+    @GetMapping("/{id}/salaryStats")
+    public List<AverageSalaryByPosition> findAverageSalariesByPosition(@PathVariable Integer id) {
+        return companyService.findAverageSalariesByPosition(id);
     }
 
     @PostMapping
@@ -113,6 +120,11 @@ public class CompanyRestController {
         return companyMapper.companyToDto(companyWithUpdatedEmployees);
     }
 
+    @PutMapping("/{companyId}/salary/{jobTitle}/{minSalary}")
+    public void raiseMinSalary(@PathVariable Integer companyId, @PathVariable String jobTitle, @PathVariable int minSalary) {
+        salaryService.raiseMinSalary(companyId, jobTitle, minSalary);
+    }
+
     private void throwStatusException(Company company, HttpStatus status) {
         if (company == null) {
             throw new ResponseStatusException(status);
@@ -123,6 +135,15 @@ public class CompanyRestController {
         if (bindingResult.hasErrors()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    private List<CompanyDto> mapCompaniesWithOptionalFilter(List<Company> companies, Optional<Boolean> full) {
+        List<CompanyDto> companyDtos = companyMapper.companiesToDtos(companies);
+        boolean filterRequired = full.isEmpty() || full.get().equals(Boolean.FALSE);
+        return companyDtos
+            .stream()
+            .map(company -> setFilterForResponse(filterRequired, company))
+            .toList();
     }
 
     private CompanyDto setFilterForResponse(boolean filterRequired, CompanyDto companyDto) {

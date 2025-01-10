@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 public class FilterConfiguration {
     public FilterConfiguration(ObjectMapper objectMapper) {
         SimpleFilterProvider simpleFilterProvider = new SimpleFilterProvider().setFailOnUnknownId(true);
-        simpleFilterProvider.addFilter("positionFilter", SimpleBeanPropertyFilter.serializeAll());
+        simpleFilterProvider.addFilter("employeeFilter", SimpleBeanPropertyFilter.serializeAll());
         objectMapper.setFilterProvider(simpleFilterProvider);
     }
 }

@@ -6,6 +6,10 @@ import hu.cubix.hr.model.Employee;
 import hu.cubix.hr.service.IEmployeeService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -28,13 +32,6 @@ public class EmployeeRestController {
         return employeeMapper.employeesToDtos(allEmployees);
     }
 
-    @GetMapping("/company")
-    public List<EmployeeDto> findAverageSalariesOfCompany(@RequestParam Integer companyId) {
-        List<Employee> employees =
-            employeeService.findAverageSalariesOfGivenCompanyIdGroupedByJobOrderByAverageSalaries(companyId);
-        return employeeMapper.employeesToDtos(employees);
-    }
-
     @GetMapping("/job")
     public List<EmployeeDto> findAllEmployeesWithGivenJob(@RequestParam String job) {
         List<Employee> employeesWithGivenJob = employeeService.findAllEmployeesByJob(job);
@@ -55,8 +52,16 @@ public class EmployeeRestController {
     }
 
     @GetMapping("/riches")
-    public List<EmployeeDto> findAllEmployeesWithHigherSalary(@RequestParam int salary) {
-        List<Employee> employeesWithHigherSalary = employeeService.getRichEmployees(salary);
+    public List<EmployeeDto> findAllEmployeesWithHigherSalary(@RequestParam int salary,
+                                                              // page, size, sort paraméterek
+                                                              @SortDefault("id") Pageable pageable) {
+        Page<Employee> employeePage = employeeService.getRichEmployees(salary, pageable);
+        System.out.println(employeePage.getTotalElements());
+        System.out.println(employeePage.isLast());
+        System.out.println(employeePage.isFirst());
+        System.out.println(employeePage.getTotalPages());
+        List<Employee> employeesWithHigherSalary = employeePage.getContent();
+
         return employeeMapper.employeesToDtos(employeesWithHigherSalary);
     }
 
@@ -84,7 +89,7 @@ public class EmployeeRestController {
     public EmployeeDto updateEmployee(@RequestBody @Valid EmployeeDto employeeDto, BindingResult bindingResult) {
         throwBadRequestExceptionIfAnyErrors(bindingResult);
         employeeDto = new EmployeeDto(
-            employeeDto.id(), employeeDto.name(), employeeDto.job(),
+            employeeDto.id(), employeeDto.name(),
             employeeDto.salary(), employeeDto.joinDateTime());
         Employee updatedEmployee = employeeService.updateEmployee(employeeMapper.dtoToEmployee(employeeDto));
         if (updatedEmployee == null) {

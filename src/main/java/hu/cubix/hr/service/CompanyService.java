@@ -1,5 +1,6 @@
 package hu.cubix.hr.service;
 
+import hu.cubix.hr.model.AverageSalaryByPosition;
 import hu.cubix.hr.model.Company;
 import hu.cubix.hr.model.Employee;
 import hu.cubix.hr.repository.CompanyRepository;
@@ -28,6 +29,7 @@ public class CompanyService {
 
     public Company createCompany(Company company) {
         company.getEmployees().forEach(employee -> employee.setCompany(company));
+        employeeRepository.saveAll(company.getEmployees());
         return companyRepository.save(company);
     }
 
@@ -72,17 +74,22 @@ public class CompanyService {
         if (company == null) {
             return null;
         }
+        employeeRepository.deleteByCompanyId(id);
         employees.forEach(employee -> employee.setCompany(company));
         company.setEmployees(employees);
         employeeRepository.saveAll(employees);
         return companyRepository.save(company);
     }
 
-    public List<Company> findCompaniesByHavingEmployeeWithSalaryAboveGiven(Integer salaryLimit) {
-        return companyRepository.findAllByHavingEmployeeWithSalaryAboveGiven(salaryLimit);
+    public List<Company> findCompaniesByHavingEmployeeWithSalaryAboveGiven(Integer minSalary) {
+        return companyRepository.findAllByHavingEmployeeWithSalaryAboveGiven(minSalary);
     }
 
     public List<Company> findCompaniesWithMoreEmployeesThanGiven(Integer employeeLimit) {
         return companyRepository.findAllWithMoreEmployeesThanGiven(employeeLimit);
+    }
+
+    public List<AverageSalaryByPosition> findAverageSalariesByPosition(Integer companyId) {
+        return companyRepository.findAverageSalariesByPosition(companyId);
     }
 }
