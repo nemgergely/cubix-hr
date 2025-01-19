@@ -8,10 +8,14 @@ import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static hu.cubix.hr.specification.EmployeeSpecification.*;
 
 @Setter(onMethod_ = {@Autowired})
 @Getter
@@ -66,5 +70,38 @@ public abstract class AbstractEmployeeService implements IEmployeeService {
     @Override
     public List<Employee> findAllEmployeesByJoinTimeFrame(LocalDateTime from, LocalDateTime to) {
         return employeeRepository.findByJoinDateTimeBetween(from, to);
+    }
+
+    @Override
+    public List<Employee> findEmployeesByExample(Employee employee) {
+        Integer id = employee.getId();
+        String name = employee.getName();
+        String jobTitle = employee.getPosition() == null ? null : employee.getPosition().getJobTitle();
+        Integer salary = employee.getSalary();
+        LocalDateTime joinDateTime = employee.getJoinDateTime();
+        String companyName = employee.getCompany() == null ? null : employee.getCompany().getName();
+
+        Specification<Employee> specs = Specification.where(null);
+
+        if (id != null) {
+            specs = specs.and(idMatches(id));
+        }
+        if (StringUtils.hasLength(name)) {
+            specs = specs.and(nameStartsWith(name));
+        }
+        if (StringUtils.hasLength(jobTitle)) {
+            specs = specs.and(jobTitleMatches(jobTitle));
+        }
+        if (salary != null) {
+            specs = specs.and(salaryWithinFivePercentMargin(salary));
+        }
+        if (joinDateTime != null) {
+            specs = specs.and(joinDateMatches(joinDateTime));
+        }
+        if (StringUtils.hasLength(companyName)) {
+            specs = specs.and(companyNameStartsWith(companyName));
+        }
+
+        return employeeRepository.findAll(specs);
     }
 }

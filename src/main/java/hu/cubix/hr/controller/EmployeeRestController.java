@@ -26,7 +26,7 @@ import java.util.*;
 @RequestMapping("/api/employees")
 public class EmployeeRestController {
 
-    private final AbstractEmployeeService employeeService;
+    private final IEmployeeService employeeService;
     private final IEmployeeMapper employeeMapper;
 
     @GetMapping
@@ -86,6 +86,13 @@ public class EmployeeRestController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
         return employeeMapper.employeeToDto(newEmployee);
+    }
+
+    @PostMapping("/example")
+    public List<EmployeeDto> findEmployeesByExample(@RequestBody EmployeeDto employeeDto) {
+        Employee employee = employeeMapper.dtoToEmployee(employeeDto);
+        List<Employee> matchedEmployees = employeeService.findEmployeesByExample(employee);
+        return employeeMapper.employeesToDtos(matchedEmployees);
     }
 
     @PutMapping

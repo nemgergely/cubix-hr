@@ -7,10 +7,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.reactive.server.StatusAssertions;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.client.RestClient;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -20,21 +19,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureTestDatabase
 class EmployeeControllerIntTest {
 
     @Autowired
     WebTestClient webTestClient;
 
     private final List<EmployeeDto> initialEmployees = List.of(
-        new EmployeeDto(1, "A Aladar", 1000,
+        new EmployeeDto(null, "A Aladar", 1000,
             LocalDateTime.of(1990, 11, 8, 18, 0, 0)),
-        new EmployeeDto(2, "B Bela", 2000,
+        new EmployeeDto(null, "B Bela", 2000,
             LocalDateTime.of(2000, 11, 8, 18, 0, 0)),
-        new EmployeeDto(3, "C Cecil", 3000,
+        new EmployeeDto(null, "C Cecil", 3000,
             LocalDateTime.of(2010, 11, 8, 18, 0, 0)),
-        new EmployeeDto(4, "D Denes", 4000,
+        new EmployeeDto(null, "D Denes", 4000,
             LocalDateTime.of(2015, 11, 8, 18, 0, 0)),
-        new EmployeeDto(5, "E Elemer", 5000,
+        new EmployeeDto(null, "E Elemer", 5000,
             LocalDateTime.of(2020, 11, 8, 18, 0, 0))
     );
 
@@ -56,10 +56,9 @@ class EmployeeControllerIntTest {
 
     @Test
     void testValidCreateEmployee() {
-        Integer id = 6;
-        if (isValidIdForRequest(id, false)) {
+        if (isValidIdForRequest(null, false)) {
             EmployeeDto newEmployee = new EmployeeDto(
-                id, "F Ferenc", 1000,
+                null, "F Ferenc", 1000,
                 LocalDateTime.of(2012, 5, 22, 6, 0, 0));
             List<EmployeeDto> employeesBeforeRequest = getAllEmployees();
 
@@ -67,19 +66,20 @@ class EmployeeControllerIntTest {
 
             List<EmployeeDto> employeesAfterRequest = getAllEmployees();
             assertThat(employeesAfterRequest.subList(0, employeesBeforeRequest.size()))
-                .usingRecursiveFieldByFieldElementComparator()
+                .usingRecursiveFieldByFieldElementComparatorIgnoringFields("id")
                 .containsExactlyElementsOf(employeesBeforeRequest);
             assertThat(employeesAfterRequest.get(employeesAfterRequest.size() - 1))
                 .usingRecursiveComparison()
+                .ignoringFields("id")
                 .isEqualTo(newEmployee);
         }
     }
 
     @ParameterizedTest
     @CsvSource(value = {
-        "7, G Gabor, -20, 2017-05-22T10:00:00",
-        "8, Christopher Lloyd (Doki), 6000, 2035-05-22T18:00:00",
-        "9, null, 10000, 2023-05-22T22:00:00"
+        "null, G Gabor, -20, 2017-05-22T10:00:00",
+        "null, Christopher Lloyd (Doki), 6000, 2035-05-22T18:00:00",
+        "null, null, 10000, 2023-05-22T22:00:00"
     }, nullValues = "null")
     void testInvalidCreateEmployee(Integer id, String name, int salary, String joinDateTimeString) {
         LocalDateTime joinDateTime = LocalDateTime.parse(joinDateTimeString);
@@ -191,8 +191,7 @@ class EmployeeControllerIntTest {
             .returnResult()
             .getResponseBody();
 
-        allEmployees.sort(Comparator.comparing(EmployeeDto::id));
-        return allEmployees;
+        return allEmployees.stream().sorted(Comparator.comparing(EmployeeDto::id)).toList();
     }
 
     private boolean isValidIdForRequest(Integer id, boolean isUpdateRequest) {

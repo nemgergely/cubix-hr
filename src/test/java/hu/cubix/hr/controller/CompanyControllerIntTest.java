@@ -6,7 +6,6 @@ import hu.cubix.hr.model.Company;
 import hu.cubix.hr.model.Employee;
 import hu.cubix.hr.repository.CompanyRepository;
 import hu.cubix.hr.repository.EmployeeRepository;
-import hu.cubix.hr.service.IEmployeeService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,15 +28,6 @@ public class CompanyControllerIntTest {
 
     @Autowired
     WebTestClient webTestClient;
-
-    @Autowired
-    CompanyRestController companyRestController;
-
-    @Autowired
-    EmployeeRestController employeeRestController;
-
-    @Autowired
-    IEmployeeService employeeService;
 
     @Autowired
     EmployeeRepository employeeRepository;
@@ -148,7 +138,11 @@ public class CompanyControllerIntTest {
     private void addEmployeePostRequest(Integer companyId, EmployeeDto employeeDto) {
         webTestClient
             .post()
-            .uri(API_COMPANIES.concat("//").concat(String.valueOf(companyId)).concat("//").concat("addEmployee"))
+            .uri(API_COMPANIES
+                .concat("//")
+                .concat(String.valueOf(companyId))
+                .concat("//")
+                .concat("addEmployee"))
             .bodyValue(employeeDto)
             .exchange()
             .expectStatus()
@@ -158,7 +152,11 @@ public class CompanyControllerIntTest {
     private void updateEmployeesPutRequest(Integer companyId, List<EmployeeDto> employeeDtos) {
         webTestClient
             .put()
-            .uri(API_COMPANIES.concat("//").concat(String.valueOf(companyId)).concat("//").concat("updateEmployees"))
+            .uri(API_COMPANIES
+                .concat("//")
+                .concat(String.valueOf(companyId))
+                .concat("//")
+                .concat("updateEmployees"))
             .bodyValue(employeeDtos)
             .exchange()
             .expectStatus()
