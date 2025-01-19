@@ -8,7 +8,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.reactive.server.StatusAssertions;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.client.RestClient;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -24,15 +26,15 @@ class EmployeeControllerIntTest {
     WebTestClient webTestClient;
 
     private final List<EmployeeDto> initialEmployees = List.of(
-        new EmployeeDto(1, "A Aladar", "Alabardos", 1000,
+        new EmployeeDto(1, "A Aladar", 1000,
             LocalDateTime.of(1990, 11, 8, 18, 0, 0)),
-        new EmployeeDto(2, "B Bela", "Barista", 2000,
+        new EmployeeDto(2, "B Bela", 2000,
             LocalDateTime.of(2000, 11, 8, 18, 0, 0)),
-        new EmployeeDto(3, "C Cecil", "Cementgyaros", 3000,
+        new EmployeeDto(3, "C Cecil", 3000,
             LocalDateTime.of(2010, 11, 8, 18, 0, 0)),
-        new EmployeeDto(4, "D Denes", "Darukezelo", 4000,
+        new EmployeeDto(4, "D Denes", 4000,
             LocalDateTime.of(2015, 11, 8, 18, 0, 0)),
-        new EmployeeDto(5, "E Elemer", "Erdomernok", 5000,
+        new EmployeeDto(5, "E Elemer", 5000,
             LocalDateTime.of(2020, 11, 8, 18, 0, 0))
     );
 
@@ -57,7 +59,7 @@ class EmployeeControllerIntTest {
         Integer id = 6;
         if (isValidIdForRequest(id, false)) {
             EmployeeDto newEmployee = new EmployeeDto(
-                id, "F Ferenc", "Forradalmar", 1000,
+                id, "F Ferenc", 1000,
                 LocalDateTime.of(2012, 5, 22, 6, 0, 0));
             List<EmployeeDto> employeesBeforeRequest = getAllEmployees();
 
@@ -75,16 +77,15 @@ class EmployeeControllerIntTest {
 
     @ParameterizedTest
     @CsvSource(value = {
-        "7, G Gabor, Galvanizator, -20, 2017-05-22T10:00:00",
-        "8, H Henrik, null, 4000, 2020-05-22T12:00:00",
-        "9, Christopher Lloyd (Doki), Idoutazo, 6000, 2035-05-22T18:00:00",
-        "10, null, Jegtoro, 10000, 2023-05-22T22:00:00"
+        "7, G Gabor, -20, 2017-05-22T10:00:00",
+        "8, Christopher Lloyd (Doki), 6000, 2035-05-22T18:00:00",
+        "9, null, 10000, 2023-05-22T22:00:00"
     }, nullValues = "null")
-    void testInvalidCreateEmployee(Integer id, String name, String job, int salary, String joinDateTimeString) {
+    void testInvalidCreateEmployee(Integer id, String name, int salary, String joinDateTimeString) {
         LocalDateTime joinDateTime = LocalDateTime.parse(joinDateTimeString);
         if (isValidIdForRequest(id, false)) {
             List<EmployeeDto> employeesBeforeRequest = getAllEmployees();
-            EmployeeDto newEmployee = new EmployeeDto(id, name, job, salary, joinDateTime);
+            EmployeeDto newEmployee = new EmployeeDto(id, name, salary, joinDateTime);
 
             createEmployeePostRequest(newEmployee, false);
 
@@ -100,7 +101,7 @@ class EmployeeControllerIntTest {
         Integer id = 1;
         if (isValidIdForRequest(id, true)) {
             EmployeeDto employeeForUpdate = new EmployeeDto(
-                id, "A Aladar Uj", "Alabardos Uj", 1000,
+                id, "A Aladar Uj", 1000,
                 LocalDateTime.of(2012, 5, 22, 6, 0, 0));
             List<EmployeeDto> employeesBeforeRequest = getAllEmployees();
 
@@ -121,16 +122,15 @@ class EmployeeControllerIntTest {
 
     @ParameterizedTest
     @CsvSource(value = {
-        "2, B Bela Uj, Barista Uj, 0, 2017-05-22T10:00:00",
-        "3, C Cecil Uj, null, 4000, 2020-05-22T12:00:00",
-        "4, Christopher Lloyd Uj, Doki Uj, 6000, 2035-05-22T18:00:00",
-        "5, null, Eliminator Uj, 10000, 2023-05-22T22:00:00"
+        "2, B Bela Uj, 0, 2017-05-22T10:00:00",
+        "3, Christopher Lloyd Uj, 6000, 2035-05-22T18:00:00",
+        "4, null, 10000, 2023-05-22T22:00:00"
     }, nullValues = "null")
-    void testInvalidUpdateEmployee(int id, String name, String job, int salary, String joinDateTimeString) {
+    void testInvalidUpdateEmployee(int id, String name, int salary, String joinDateTimeString) {
         LocalDateTime joinDateTime = LocalDateTime.parse(joinDateTimeString);
         if (isValidIdForRequest(id, true)) {
             List<EmployeeDto> employeesBeforeRequest = getAllEmployees();
-            EmployeeDto employeeForUpdate = new EmployeeDto(id, name, job, salary, joinDateTime);
+            EmployeeDto employeeForUpdate = new EmployeeDto(id, name, salary, joinDateTime);
 
             updateEmployeePutRequest(employeeForUpdate, false);
 

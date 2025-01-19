@@ -6,6 +6,7 @@ import hu.cubix.hr.model.Employee;
 import hu.cubix.hr.repository.CompanyRepository;
 import hu.cubix.hr.repository.EmployeeRepository;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,17 +15,18 @@ import java.util.List;
 @Service
 @Transactional
 @AllArgsConstructor
+@Getter
 public class CompanyService {
 
     private final CompanyRepository companyRepository;
     private final EmployeeRepository employeeRepository;
 
     public List<Company> getAllCompanies() {
-        return companyRepository.findAll();
+        return companyRepository.findAllWithEmployees();
     }
 
     public Company getCompanyById(int id) {
-        return companyRepository.findById(id).orElse(null);
+        return companyRepository.findByIdWithEmployees(id).orElse(null);
     }
 
     public Company createCompany(Company company) {

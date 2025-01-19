@@ -17,6 +17,7 @@ import hu.cubix.hr.service.CompanyService;
 import hu.cubix.hr.service.SalaryService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
@@ -26,9 +27,10 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.*;
 
 @RestController
-@RequestMapping("/api/companies")
 @AllArgsConstructor
+@Getter
 @Slf4j
+@RequestMapping("/api/companies")
 public class CompanyRestController {
 
     private final ObjectMapper objectMapper;

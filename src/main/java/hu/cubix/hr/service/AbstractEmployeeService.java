@@ -3,6 +3,7 @@ package hu.cubix.hr.service;
 import hu.cubix.hr.model.AverageSalaryByPosition;
 import hu.cubix.hr.model.Employee;
 import hu.cubix.hr.repository.EmployeeRepository;
+import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Setter(onMethod_ = {@Autowired})
+@Getter
 @Transactional
 public abstract class AbstractEmployeeService implements IEmployeeService {
 

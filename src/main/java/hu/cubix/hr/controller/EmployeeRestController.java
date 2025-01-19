@@ -3,9 +3,11 @@ package hu.cubix.hr.controller;
 import hu.cubix.hr.dto.EmployeeDto;
 import hu.cubix.hr.mapper.IEmployeeMapper;
 import hu.cubix.hr.model.Employee;
+import hu.cubix.hr.service.AbstractEmployeeService;
 import hu.cubix.hr.service.IEmployeeService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,10 +22,11 @@ import java.util.*;
 
 @RestController
 @AllArgsConstructor
+@Getter
 @RequestMapping("/api/employees")
 public class EmployeeRestController {
 
-    private final IEmployeeService employeeService;
+    private final AbstractEmployeeService employeeService;
     private final IEmployeeMapper employeeMapper;
 
     @GetMapping
