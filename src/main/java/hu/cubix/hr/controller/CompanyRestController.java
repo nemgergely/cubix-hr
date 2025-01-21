@@ -56,8 +56,7 @@ public class CompanyRestController {
     public List<CompanyDto> findCompaniesWithMoreEmployeesThanGiven(@RequestParam Integer employeeLimit,
                                                                     @RequestParam Optional<Boolean> full) {
         List<Company> companies = companyService.findCompaniesWithMoreEmployeesThanGiven(employeeLimit);
-        List<CompanyDto> companyDtos = mapCompaniesWithOptionalFilter(companies, full);
-        return companyDtos;
+        return mapCompaniesWithOptionalFilter(companies, full);
     }
 
     @GetMapping("/{id}")

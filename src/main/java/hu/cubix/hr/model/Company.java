@@ -41,8 +41,7 @@ public class Company {
         this.getEmployees().add(employee);
     }
 
-    public Company(Integer id, int registrationNumber, String name, String address) {
-        this.id = id;
+    public Company(int registrationNumber, String name, String address) {
         this.registrationNumber = registrationNumber;
         this.name = name;
         this.address = address;

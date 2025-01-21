@@ -38,14 +38,14 @@ public class InitDbService {
         Position carpenter = positionRepository.save(new Position("Asztalos", Qualification.UNIVERSITY));
         Position bartender = positionRepository.save(new Position("Bárpultos", Qualification.HIGH_SCHOOL));
 
-        Employee newEmployee1 = employeeRepository.save(new Employee(null, "A Aladár", 200000, LocalDateTime.now()));
+        Employee newEmployee1 = employeeRepository.save(new Employee("A Aladár", 200000, LocalDateTime.now()));
         newEmployee1.setPosition(carpenter);
 
-        Employee newEmployee2 = employeeRepository.save(new Employee(null, "B Béla", 200000, LocalDateTime.now()));
+        Employee newEmployee2 = employeeRepository.save(new Employee("B Béla", 200000, LocalDateTime.now()));
         newEmployee2.setPosition(bartender);
 
         Company newCompany = companyRepository.save(
-            new Company(null, 11111111, "Alfa Cég", "Budapest, Alfa utca 6."));
+            new Company(11111111, "Alfa Cég", "Budapest, Alfa utca 6."));
         newCompany.addEmployee(newEmployee2);
         newCompany.addEmployee(newEmployee1);
 

@@ -41,14 +41,14 @@ public class CompanyControllerIntTest {
     public static final String API_COMPANIES = "/api/companies";
 
     private final List<Employee> initialEmployees = List.of(
-        new Employee(null, "A Aladar", 1000,
+        new Employee("A Aladar", 1000,
             LocalDateTime.of(1990, 11, 8, 18, 0, 0)),
-        new Employee(null, "B Bela", 2000,
+        new Employee("B Bela", 2000,
             LocalDateTime.of(2000, 11, 8, 18, 0, 0))
     );
 
     private final Company initialCompany =
-        new Company(null, 11111111, "Alfa Cég", "Budapest, Alfa utca 6.");
+        new Company(11111111, "Alfa Cég", "Budapest, Alfa utca 6.");
 
     @BeforeEach
     void setUp() {

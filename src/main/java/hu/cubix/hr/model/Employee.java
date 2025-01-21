@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
 @EqualsAndHashCode(of = "id")
 public class Employee {
@@ -31,8 +32,7 @@ public class Employee {
     @JoinColumn(name = "position_id", referencedColumnName = "id")
     private Position position;
 
-    public Employee(Integer id, String name, Integer salary, LocalDateTime joinDateTime) {
-        this.id = id;
+    public Employee(String name, Integer salary, LocalDateTime joinDateTime) {
         this.name = name;
         this.salary = salary;
         this.joinDateTime = joinDateTime;

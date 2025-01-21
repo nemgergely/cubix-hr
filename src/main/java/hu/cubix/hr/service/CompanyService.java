@@ -80,7 +80,11 @@ public class CompanyService {
         employees.forEach(employee -> employee.setCompany(company));
         company.setEmployees(employees);
         employeeRepository.saveAll(employees);
-        return companyRepository.save(company);
+        // Szerintem azért lehet elhagyni a save() utasítást, mert a tranzakció végén
+        // minden, a managed entitásokon végzett változtatás automatikusan lementődik,
+        // és egy saveAndFlush() hívódik meg
+        return company;
+        // return companyRepository.save(company);
     }
 
     public List<Company> findCompaniesByHavingEmployeeWithSalaryAboveGiven(Integer minSalary) {

@@ -1,13 +1,18 @@
 package hu.cubix.hr.specification;
 
+import hu.cubix.hr.model.Company_;
 import hu.cubix.hr.model.Employee;
 import hu.cubix.hr.model.Employee_;
+import hu.cubix.hr.model.Position_;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public class EmployeeSpecification {
+
+    private EmployeeSpecification() {
+    }
 
     public static Specification<Employee> idMatches(Integer id) {
         return (root, cq, cb) -> cb.equal(root.get(Employee_.id), id);
@@ -20,7 +25,7 @@ public class EmployeeSpecification {
 
     public static Specification<Employee> jobTitleMatches(String jobTitle) {
         return (root, cq, cb) ->
-            cb.equal(root.get(Employee_.position.getName()), jobTitle);
+            cb.equal(root.get(Employee_.position).get(Position_.JOB_TITLE), jobTitle);
     }
 
     public static Specification<Employee> salaryWithinFivePercentMargin(Integer salary) {
@@ -36,6 +41,6 @@ public class EmployeeSpecification {
 
     public static Specification<Employee> companyNameStartsWith(String prefix) {
         return (root, cq, cb) ->
-            cb.like(cb.lower(root.get(Employee_.company.getName())), prefix.toLowerCase() + "%");
+            cb.like(cb.lower(root.get(Employee_.company).get(Company_.NAME.toLowerCase())), prefix.toLowerCase() + "%");
     }
 }
