@@ -33,7 +33,7 @@ import java.util.*;
 @RequestMapping("/api/companies")
 public class CompanyRestController {
 
-    private final ObjectMapper objectMapper;
+    // private final ObjectMapper objectMapper;
     private final CompanyService companyService;
     private final ICompanyMapper companyMapper;
     private final IEmployeeMapper employeeMapper;
@@ -41,33 +41,44 @@ public class CompanyRestController {
 
     @GetMapping
     public List<CompanyDto> findAllCompanies(@RequestParam Optional<Boolean> full) {
-        List<Company> companies = companyService.getAllCompanies();
-        return mapCompaniesWithOptionalFilter(companies, full);
+        List<Company> companies = companyService.getAllCompanies(full);
+        // return mapCompaniesWithOptionalFilter(companies, full);
+        return mapCompanies(companies, full);
     }
 
     @GetMapping("/salary")
     public List<CompanyDto> findCompaniesByHavingEmployeeWithSalaryAboveGiven(@RequestParam Integer minSalary,
                                                                               @RequestParam Optional<Boolean> full) {
-        List<Company> companies = companyService.findCompaniesByHavingEmployeeWithSalaryAboveGiven(minSalary);
-        return mapCompaniesWithOptionalFilter(companies, full);
+        List<Company> companies = companyService.findCompaniesByHavingEmployeeWithSalaryAboveGiven(minSalary, full);
+        // return mapCompaniesWithOptionalFilter(companies, full);
+        return mapCompanies(companies, full);
     }
 
     @GetMapping("/employee")
     public List<CompanyDto> findCompaniesWithMoreEmployeesThanGiven(@RequestParam Integer employeeLimit,
                                                                     @RequestParam Optional<Boolean> full) {
-        List<Company> companies = companyService.findCompaniesWithMoreEmployeesThanGiven(employeeLimit);
-        return mapCompaniesWithOptionalFilter(companies, full);
+        List<Company> companies = companyService.findCompaniesWithMoreEmployeesThanGiven(employeeLimit, full);
+        // return mapCompaniesWithOptionalFilter(companies, full);
+        return mapCompanies(companies, full);
     }
 
     @GetMapping("/{id}")
     public CompanyDto findCompanyById(@PathVariable int id, @RequestParam Optional<Boolean> full) {
-        Company company = companyService.getCompanyById(id);
+        Company company;
+        if (full.isPresent() && Boolean.TRUE.equals(full.get())) {
+            company = companyService.getCompanyWithEmployeesById(id);
+        } else {
+            company = companyService.getCompanyById(id);
+        }
         if (company == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        CompanyDto companyDto = companyMapper.companyToDto(company);
-        boolean filterRequired = full.isEmpty() || full.get().equals(Boolean.FALSE);
-        return setFilterForResponse(filterRequired, companyDto);
+//        CompanyDto companyDto = companyMapper.companyToDto(company);
+//        boolean filterRequired = full.isEmpty() || full.get().equals(Boolean.FALSE);
+//        return setFilterForResponse(filterRequired, companyDto);
+        return full.orElse(false) ?
+            companyMapper.companyToDtoWithEmployees(company) :
+            companyMapper.companyToDto(company);
     }
 
     @GetMapping("/{id}/salaryStats")
@@ -138,6 +149,13 @@ public class CompanyRestController {
         }
     }
 
+    private List<CompanyDto> mapCompanies(List<Company> companies, Optional<Boolean> full) {
+        return full.isPresent() && Boolean.TRUE.equals(full.get()) ?
+            companyMapper.companiesToDtosWithEmployees(companies) :
+            companyMapper.companiesToDtos(companies);
+    }
+
+    /*
     private List<CompanyDto> mapCompaniesWithOptionalFilter(List<Company> companies, Optional<Boolean> full) {
         List<CompanyDto> companyDtos = companyMapper.companiesToDtos(companies);
         boolean filterRequired = full.isEmpty() || full.get().equals(Boolean.FALSE);
@@ -171,4 +189,5 @@ public class CompanyRestController {
             return null;
         }
     }
+    */
 }

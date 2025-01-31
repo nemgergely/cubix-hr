@@ -19,7 +19,6 @@ import static hu.cubix.hr.specification.EmployeeSpecification.*;
 
 @Setter(onMethod_ = {@Autowired})
 @Getter
-@Transactional
 public abstract class AbstractEmployeeService implements IEmployeeService {
 
     private EmployeeRepository employeeRepository;
@@ -34,11 +33,13 @@ public abstract class AbstractEmployeeService implements IEmployeeService {
         return employeeRepository.findBySalaryGreaterThan(salary, pageable);
     }
 
+    @Transactional
     @Override
     public Employee createEmployee(Employee employee) {
         return employeeRepository.save(employee);
     }
 
+    @Transactional
     @Override
     public Employee updateEmployee(Employee employee) {
         if (!employeeRepository.existsById(employee.getId())) {
@@ -47,6 +48,7 @@ public abstract class AbstractEmployeeService implements IEmployeeService {
         return employeeRepository.save(employee);
     }
 
+    @Transactional
     @Override
     public void deleteEmployeeById(int id) {
         employeeRepository.deleteById(id);

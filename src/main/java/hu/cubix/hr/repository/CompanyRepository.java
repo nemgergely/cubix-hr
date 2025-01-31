@@ -15,11 +15,20 @@ public interface CompanyRepository extends JpaRepository<Company, Integer> {
     @Query("SELECT DISTINCT c FROM Company c " +
         "JOIN FETCH c.employees e " +
         "WHERE e.salary > :minSalary")
+    List<Company> findAllWithEmployeesByHavingEmployeeWithSalaryAboveGiven(@Param("minSalary") Integer minSalary);
+
+    @Query("SELECT DISTINCT c FROM Company c " +
+        "JOIN c.employees e " +
+        "WHERE e.salary > :minSalary")
     List<Company> findAllByHavingEmployeeWithSalaryAboveGiven(@Param("minSalary") Integer minSalary);
 
     @Query(value = "SELECT DISTINCT c FROM Company c " +
         "JOIN FETCH c.employees e " +
-        "WHERE COUNT(e) > :employeeLimit")
+        "WHERE SIZE(c.employees) > :employeeLimit")
+    List<Company> findAllWithEmployeesWithMoreEmployeesThanGiven(@Param("employeeLimit") Integer employeeLimit);
+
+    @Query(value = "SELECT DISTINCT c FROM Company c " +
+        "WHERE SIZE(c.employees) > :employeeLimit")
     List<Company> findAllWithMoreEmployeesThanGiven(@Param("employeeLimit") Integer employeeLimit);
 
     @Query("SELECT e.position.jobTitle AS position, AVG(e.salary) AS averageSalary "

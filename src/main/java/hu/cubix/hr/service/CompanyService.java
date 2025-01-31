@@ -11,9 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
-@Transactional
 @AllArgsConstructor
 @Getter
 public class CompanyService {
@@ -21,20 +21,28 @@ public class CompanyService {
     private final CompanyRepository companyRepository;
     private final EmployeeRepository employeeRepository;
 
-    public List<Company> getAllCompanies() {
-        return companyRepository.findAllWithEmployees();
+    public List<Company> getAllCompanies(Optional<Boolean> full) {
+        return full.isPresent() && Boolean.TRUE.equals(full.get()) ?
+            companyRepository.findAllWithEmployees() :
+            companyRepository.findAll();
     }
 
-    public Company getCompanyById(int id) {
+    public Company getCompanyWithEmployeesById(int id) {
         return companyRepository.findByIdWithEmployees(id).orElse(null);
     }
 
+    public Company getCompanyById(int id) {
+        return companyRepository.findById(id).orElse(null);
+    }
+
+    @Transactional
     public Company createCompany(Company company) {
         company.getEmployees().forEach(employee -> employee.setCompany(company));
         employeeRepository.saveAll(company.getEmployees());
         return companyRepository.save(company);
     }
 
+    @Transactional
     public Company updateCompany(Company company) {
         if (!companyRepository.existsById(company.getId())) {
             return null;
@@ -42,10 +50,12 @@ public class CompanyService {
         return companyRepository.save(company);
     }
 
+    @Transactional
     public void deleteCompanyById(int id) {
         companyRepository.deleteById(id);
     }
 
+    @Transactional
     public Company addEmployeeToCompany(int id, Employee employee) {
         Company company = getCompanyById(id);
         if (company == null) {
@@ -57,6 +67,7 @@ public class CompanyService {
         return companyRepository.save(company);
     }
 
+    @Transactional
     public Company deleteEmployeeFromCompany(int id, int employeeId) {
         Company company = getCompanyById(id);
         if (company == null) {
@@ -71,6 +82,7 @@ public class CompanyService {
         return companyRepository.save(company);
     }
 
+    @Transactional
     public Company updateEmployeesOfCompany(int id, List<Employee> employees) {
         Company company = getCompanyById(id);
         if (company == null) {
@@ -87,12 +99,16 @@ public class CompanyService {
         // return companyRepository.save(company);
     }
 
-    public List<Company> findCompaniesByHavingEmployeeWithSalaryAboveGiven(Integer minSalary) {
-        return companyRepository.findAllByHavingEmployeeWithSalaryAboveGiven(minSalary);
+    public List<Company> findCompaniesByHavingEmployeeWithSalaryAboveGiven(Integer minSalary, Optional<Boolean> full) {
+        return full.isPresent() && Boolean.TRUE.equals(full.get()) ?
+            companyRepository.findAllWithEmployeesByHavingEmployeeWithSalaryAboveGiven(minSalary) :
+            companyRepository.findAllByHavingEmployeeWithSalaryAboveGiven(minSalary);
     }
 
-    public List<Company> findCompaniesWithMoreEmployeesThanGiven(Integer employeeLimit) {
-        return companyRepository.findAllWithMoreEmployeesThanGiven(employeeLimit);
+    public List<Company> findCompaniesWithMoreEmployeesThanGiven(Integer employeeLimit, Optional<Boolean> full) {
+        return full.isPresent() && Boolean.TRUE.equals(full.get()) ?
+            companyRepository.findAllWithEmployeesWithMoreEmployeesThanGiven(employeeLimit) :
+            companyRepository.findAllWithMoreEmployeesThanGiven(employeeLimit);
     }
 
     public List<AverageSalaryByPosition> findAverageSalariesByPosition(Integer companyId) {
