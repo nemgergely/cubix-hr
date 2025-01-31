@@ -1,6 +1,5 @@
 package hu.cubix.hr.service;
 
-import hu.cubix.hr.model.AverageSalaryByPosition;
 import hu.cubix.hr.model.Employee;
 import hu.cubix.hr.repository.EmployeeRepository;
 import lombok.Getter;
